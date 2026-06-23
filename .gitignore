@@ -1,0 +1,33 @@
+# Built artifacts and dependency caches
+*.apk
+*.aar
+*.ap_
+*.aab
+build/
+/build
+capture/
+
+# Android Studio internal configuration files
+.gradle/
+/local.properties
+/.idea/caches/
+/.idea/libraries/
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/nav/
+/.idea/assetWizardSettings.xml
+.DS_Store
+/captures/
+
+# Keystore files (CRITICAL: Never leak your production signing keys)
+*.jks
+*.keystore
+
+# Google Services configuration (if you use Firebase)
+# google-services.json
+
+# Local lint and profiling reports
+/lint/
+.cxx/
+*.hprof
+.idea
