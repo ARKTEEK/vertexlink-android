@@ -1,4 +1,4 @@
-package vertexlink.ui.screens.discovery
+package vertexlink.ui.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import vertexlink.ui.viewmodel.DiscoveryViewModel
 
 @Composable
 fun DiscoveryScreen(

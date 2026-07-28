@@ -1,12 +1,12 @@
-package vertexlink.ui.screens.discovery
+package vertexlink.ui.viewmodel
 
 import android.app.Application
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.AndroidViewModel
 import vertexlink.device.DeviceIdentity
 import vertexlink.device.DeviceInfo
-import vertexlink.network.DeviceBroadcaster
-import vertexlink.network.DeviceScanner
+import vertexlink.network.mdns.DeviceBroadcaster
+import vertexlink.network.mdns.DeviceScanner
 
 class DiscoveryViewModel(application: Application) : AndroidViewModel(application) {
   private val identity = DeviceIdentity(application)

@@ -1,4 +1,4 @@
-package vertexlink.network
+package vertexlink.network.mdns
 
 import android.content.Context
 import android.net.nsd.NsdManager
