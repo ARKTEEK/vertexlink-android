@@ -1,28 +1,37 @@
 package com.vertexlink.network
 
+import android.annotation.SuppressLint
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.IOException
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.InetSocketAddress
-import java.net.Socket
 import java.net.SocketTimeoutException
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
+import javax.net.ssl.SSLContext
+import javax.net.ssl.SSLSocket
+import javax.net.ssl.X509TrustManager
 
 class TCPClient(private val host: String, private val port: Int) {
-  private var socket: Socket? = null
+  private var socket: SSLSocket? = null
   private var writer: BufferedWriter? = null
   private var reader: BufferedReader? = null
 
   @Throws(IOException::class)
   fun connect(timeoutMs: Int = 5000) {
-    val s = Socket()
+    val sslContext = SSLContext.getInstance("TLS")
+    sslContext.init(null, arrayOf(trustAllManager), SecureRandom())
 
-    s.connect(InetSocketAddress(host, port), timeoutMs)
+    val sslSocket = sslContext.socketFactory.createSocket() as SSLSocket
+    sslSocket.enabledProtocols = arrayOf("TLSv1.2", "TLSv1.3")
+    sslSocket.connect(InetSocketAddress(host, port), timeoutMs)
+    sslSocket.startHandshake()
 
-    socket = s
-    writer = BufferedWriter(OutputStreamWriter(s.getOutputStream()))
-    reader = BufferedReader(InputStreamReader(s.getInputStream()))
+    socket = sslSocket
+    writer = BufferedWriter(OutputStreamWriter(sslSocket.getOutputStream()))
+    reader = BufferedReader(InputStreamReader(sslSocket.getInputStream()))
   }
 
   @Throws(IOException::class)
@@ -63,6 +72,15 @@ class TCPClient(private val host: String, private val port: Int) {
     try {
       socket?.close()
     } catch (_: Exception) {
+    }
+  }
+
+  @SuppressLint("CustomX509TrustManager")
+  private companion object {
+    val trustAllManager = object : X509TrustManager {
+      override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {}
+      override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {}
+      override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
     }
   }
 }
