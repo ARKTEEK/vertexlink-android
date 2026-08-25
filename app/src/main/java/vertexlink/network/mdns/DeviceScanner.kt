@@ -8,7 +8,7 @@ import android.net.wifi.WifiManager
 class DeviceScanner(
   context: Context,
   private val deviceId: String,
-  private val onDeviceDiscovered: (String, String) -> Unit
+  private val onDeviceDiscovered: (String, String, String) -> Unit
 ) {
   private val nsdManager = context.getSystemService(Context.NSD_SERVICE) as NsdManager
   private val wifiManager =
@@ -55,6 +55,7 @@ class DeviceScanner(
               val address = serviceInfo.host?.hostAddress ?: return
 
               onDeviceDiscovered(
+                remoteId,
                 serviceInfo.serviceName,
                 address
               )

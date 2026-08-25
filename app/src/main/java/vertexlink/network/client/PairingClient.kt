@@ -11,7 +11,7 @@ import java.io.IOException
 import java.net.SocketTimeoutException
 
 sealed class PairingResult {
-  data class Accepted(val desktopId: String, val desktopName: String, val pin: String) :
+  data class Accepted(val desktopId: String, val desktopName: String, val pin: String, val token: String) :
     PairingResult()
 
   data class Rejected(val reason: String?) : PairingResult()
@@ -23,6 +23,35 @@ class PairingClient(
   private val tcpClient: TCPClient,
   private val identity: DeviceIdentity
 ) {
+  suspend fun authenticate(
+    desktopId: String,
+    token: String,
+    timeoutMs: Int = 15000
+  ): PairingResult = withContext(Dispatchers.IO) {
+    try {
+      val payload = Protocol.encode(
+        "AUTH",
+        mapOf("deviceId" to identity.getId(), "token" to token)
+      )
+      tcpClient.send(payload)
+
+      val resultLine = tcpClient.receiveLine(timeoutMs)
+        ?: return@withContext PairingResult.TimedOut
+
+      val (resultType, resultFields) = Protocol.decode(resultLine)
+
+      when (resultType) {
+        "AUTH_OK" -> PairingResult.Accepted(desktopId, "", "", token)
+        "AUTH_FAIL" -> PairingResult.Rejected(resultFields["reason"])
+        else -> PairingResult.Error("Unexpected auth response: $resultType")
+      }
+    } catch (e: SocketTimeoutException) {
+      PairingResult.TimedOut
+    } catch (e: IOException) {
+      PairingResult.Error(e.message ?: "IO error")
+    }
+  }
+
   suspend fun requestPairing(
     deviceName: String,
     onPinGenerated: (String) -> Unit,
@@ -50,7 +79,7 @@ class PairingClient(
 
       val (ackType, ackFields) = Protocol.decode(ackLine)
 
-      if (ackType != "PAIR_ACK") {
+      if (ackType != "PAIR_CHALLENGE") {
         return@withContext PairingResult.Error("Unexpected response: $ackType")
       }
 
@@ -69,16 +98,15 @@ class PairingClient(
 
       val (decisionType, decisionFields) = Protocol.decode(decisionLine)
 
-      if (decisionType == "PAIR_DECISION" && decisionFields["accepted"] == "true") {
-        PairingResult.Accepted(
-          ackFields["deviceId"].orEmpty(),
-          ackFields["deviceName"].orEmpty(),
-          pin
+      when (decisionType) {
+        "PAIR_SUCCESS" -> PairingResult.Accepted(
+          decisionFields["deviceId"].orEmpty(),
+          decisionFields["deviceName"].orEmpty(),
+          pin,
+          decisionFields["token"].orEmpty()
         )
-      } else if (decisionType == "PAIR_DECISION") {
-        PairingResult.Rejected(decisionFields["reason"])
-      } else {
-        PairingResult.Error("Unexpected decision: $decisionType")
+        "PAIR_DECISION" -> PairingResult.Rejected(decisionFields["reason"])
+        else -> PairingResult.Error("Unexpected decision: $decisionType")
       }
     } catch (e: SocketTimeoutException) {
       PairingResult.TimedOut

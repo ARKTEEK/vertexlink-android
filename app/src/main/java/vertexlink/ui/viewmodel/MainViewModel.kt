@@ -12,6 +12,7 @@ import vertexlink.device.DeviceIdentity
 import vertexlink.device.DeviceInfo
 import vertexlink.network.client.PairingClient
 import vertexlink.network.client.PairingResult
+import vertexlink.store.PairedDesktopStore
 import vertexlink.ui.state.PairingUiState
 
 private const val DESKTOP_PORT = 28401
@@ -19,6 +20,7 @@ private const val DESKTOP_PORT = 28401
 class MainViewModel(application: Application) : AndroidViewModel(application) {
   private val identity = DeviceIdentity(application.applicationContext)
   private val deviceInfo = DeviceInfo()
+  private val pairedDesktopStore = PairedDesktopStore(application.applicationContext)
 
   var tcpClient: TCPClient? = null
     private set
@@ -29,7 +31,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
   private val _pairingState = mutableStateOf<PairingUiState>(PairingUiState.Idle)
   val pairingState: State<PairingUiState> = _pairingState
 
-  fun pairWithDevice(address: String) {
+  fun connectToDevice(desktopId: String, address: String) {
     _pairingState.value = PairingUiState.Connecting
 
     viewModelScope.launch(Dispatchers.IO) {
@@ -39,7 +41,37 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         tcpClient = client
 
-        val result = PairingClient(client, identity).requestPairing(
+        val pairingClient = PairingClient(client, identity)
+        val stored = pairedDesktopStore.find(desktopId)
+
+        if (stored != null) {
+          val (_, token) = stored
+
+          when (val authResult = pairingClient.authenticate(desktopId, token)) {
+            is PairingResult.Accepted -> {
+              _targetAddress.value = address
+              return@launch
+            }
+
+            is PairingResult.Rejected -> {
+              pairedDesktopStore.remove(desktopId)
+            }
+
+            PairingResult.TimedOut -> {
+              client.close(); tcpClient = null
+              _pairingState.value = PairingUiState.TimedOut
+              return@launch
+            }
+
+            is PairingResult.Error -> {
+              client.close(); tcpClient = null
+              _pairingState.value = PairingUiState.Error(authResult.message)
+              return@launch
+            }
+          }
+        }
+
+        val result = pairingClient.requestPairing(
           deviceName = deviceInfo.getDeviceName(getApplication()),
           onPinGenerated = { pin ->
             _pairingState.value = PairingUiState.AwaitingConfirmation(pin, address)
@@ -48,32 +80,28 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         when (result) {
           is PairingResult.Accepted -> {
+            pairedDesktopStore.save(result.desktopId, result.desktopName, result.token)
             _targetAddress.value = address
           }
 
           is PairingResult.Rejected -> {
-            client.close()
-
-            tcpClient = null
+            client.close(); tcpClient = null
             _pairingState.value = PairingUiState.Rejected(result.reason)
           }
 
           PairingResult.TimedOut -> {
-            client.close()
-
-            tcpClient = null
+            client.close(); tcpClient = null
             _pairingState.value = PairingUiState.TimedOut
           }
 
           is PairingResult.Error -> {
-            client.close()
-
-            tcpClient = null
+            client.close(); tcpClient = null
             _pairingState.value = PairingUiState.Error(result.message)
           }
         }
       } catch (e: Exception) {
         System.err.println("Could not connect: ${e.message}")
+
         _pairingState.value = PairingUiState.Error(e.message ?: "Connection failed")
       }
     }

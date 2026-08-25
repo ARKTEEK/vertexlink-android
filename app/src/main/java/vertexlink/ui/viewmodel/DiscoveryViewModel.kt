@@ -12,10 +12,10 @@ class DiscoveryViewModel(application: Application) : AndroidViewModel(applicatio
   private val identity = DeviceIdentity(application)
   private val deviceId = identity.getId()
 
-  val devices = mutableStateListOf<Pair<String, String>>()
+  val devices = mutableStateListOf<Triple<String, String, String>>()
 
-  private val scanner = DeviceScanner(application, deviceId) { name, address ->
-    val device = Pair(name, address)
+  private val scanner = DeviceScanner(application, deviceId) { id, name, address ->
+    val device = Triple(id, name, address)
 
     if (!devices.contains(device)) {
       devices.add(device)

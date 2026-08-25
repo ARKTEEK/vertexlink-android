@@ -53,8 +53,8 @@ class MainActivity : ComponentActivity() {
 
             else -> DiscoveryScreen(
               viewModel = discoveryViewModel,
-              onDeviceSelected = { address ->
-                mainViewModel.pairWithDevice(address)
+              onDeviceSelected = { desktopId, address ->
+                mainViewModel.connectToDevice(desktopId, address)
               },
               modifier = Modifier.padding(innerPadding)
             )

@@ -21,7 +21,7 @@ import vertexlink.ui.viewmodel.DiscoveryViewModel
 @Composable
 fun DiscoveryScreen(
   viewModel: DiscoveryViewModel,
-  onDeviceSelected: (String) -> Unit,
+  onDeviceSelected: (String, String) -> Unit,
   modifier: Modifier = Modifier
 ) {
   DisposableEffect(Unit) {
@@ -39,22 +39,14 @@ fun DiscoveryScreen(
         modifier = Modifier
           .fillMaxWidth()
           .padding(8.dp)
-          .clickable {
-            onDeviceSelected(device.second)
-          }
+          .clickable { onDeviceSelected(device.first, device.third) }
       ) {
-        Column(
-          modifier = Modifier.padding(16.dp)
-        ) {
-          Text(
-            text = device.first,
-            style = MaterialTheme.typography.titleMedium
-          )
+        Column(modifier = Modifier.padding(16.dp)) {
+          Text(text = device.second, style = MaterialTheme.typography.titleMedium)
+
           Spacer(modifier = Modifier.height(4.dp))
-          Text(
-            text = device.second,
-            style = MaterialTheme.typography.bodyMedium
-          )
+
+          Text(text = device.third, style = MaterialTheme.typography.bodyMedium)
         }
       }
     }
