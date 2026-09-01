@@ -1,4 +1,7 @@
 # VertexLink-Android
+> **Warning**
+> 
+> This project is currently a **Work in Progress (WIP)**. Features, protocols, and APIs are subject to change.
 
 VertexLink-Android is the Android client application for controlling a PC running [VertexLink-Desktop](https://github.com/arkteek/vertexlink-desktop). It allows users to control mouse movements, keyboard inputs, clipboard content, and system volume over secure encrypted network connections.
 
