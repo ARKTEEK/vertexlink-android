@@ -2,33 +2,73 @@ package com.vertexlink.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.vertexlink.R
 
-// Set of Material typography styles to start with
+val PlusJakartaSans = FontFamily(
+  Font(R.font.plus_jakarta_sans_semibold, FontWeight.SemiBold),
+  Font(R.font.plus_jakarta_sans_bold, FontWeight.Bold)
+)
+
+val Inter = FontFamily(
+  Font(R.font.inter_regular, FontWeight.Normal),
+  Font(R.font.inter_medium, FontWeight.Medium)
+)
+
+val JetBrainsMono = FontFamily(
+  Font(R.font.jetbrains_mono_regular, FontWeight.Normal)
+)
+
+val MonoLabelStyle = TextStyle(
+  fontFamily = JetBrainsMono,
+  fontSize = 12.sp,
+  color = VertexColors.TextPrimary
+)
+
 val Typography = Typography(
+  titleLarge = TextStyle(
+    fontFamily = PlusJakartaSans,
+    fontWeight = FontWeight.Bold,
+    fontSize = 16.sp,
+    color = VertexColors.TextPrimary
+  ),
+  titleMedium = TextStyle(
+    fontFamily = PlusJakartaSans,
+    fontWeight = FontWeight.Bold,
+    fontSize = 13.5.sp,
+    color = VertexColors.TextPrimary
+  ),
+  titleSmall = TextStyle(
+    fontFamily = PlusJakartaSans,
+    fontWeight = FontWeight.Bold,
+    fontSize = 10.5.sp,
+    color = VertexColors.AccentPrimary
+  ),
   bodyLarge = TextStyle(
-    fontFamily = FontFamily.Default,
+    fontFamily = Inter,
     fontWeight = FontWeight.Normal,
     fontSize = 16.sp,
-    lineHeight = 24.sp,
-    letterSpacing = 0.5.sp
-  )
-  /* Other default text styles to override
-  titleLarge = TextStyle(
-      fontFamily = FontFamily.Default,
-      fontWeight = FontWeight.Normal,
-      fontSize = 22.sp,
-      lineHeight = 28.sp,
-      letterSpacing = 0.sp
+    color = VertexColors.TextPrimary
+  ),
+  bodyMedium = TextStyle(
+    fontFamily = Inter,
+    fontWeight = FontWeight.Normal,
+    fontSize = 13.sp,
+    color = VertexColors.TextPrimary
+  ),
+  bodySmall = TextStyle(
+    fontFamily = Inter,
+    fontWeight = FontWeight.Medium,
+    fontSize = 12.sp,
+    color = VertexColors.TextSecondary
   ),
   labelSmall = TextStyle(
-      fontFamily = FontFamily.Default,
-      fontWeight = FontWeight.Medium,
-      fontSize = 11.sp,
-      lineHeight = 16.sp,
-      letterSpacing = 0.5.sp
+    fontFamily = Inter,
+    fontWeight = FontWeight.Medium,
+    fontSize = 10.5.sp,
+    color = VertexColors.TextMuted
   )
-  */
 )

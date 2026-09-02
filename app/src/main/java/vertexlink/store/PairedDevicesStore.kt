@@ -20,6 +20,18 @@ class PairedDesktopStore(context: Context) {
     return name to token
   }
 
+  fun getAll(): List<Triple<String, String, String>> {
+    return prefs.all.keys
+      .filter { it.endsWith(".name") }
+      .mapNotNull { nameKey ->
+        val desktopId = nameKey.removeSuffix(".name")
+        val name = prefs.getString(nameKey, null)
+        val token = prefs.getString("$desktopId.token", null)
+
+        if (name != null && token != null) Triple(desktopId, name, token) else null
+      }
+  }
+
   fun remove(desktopId: String) {
     prefs.edit {
       remove("$desktopId.name")

@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import vertexlink.device.DeviceIdentity
 import vertexlink.device.DeviceInfo
+import vertexlink.device.DiscoveredDevice
 import vertexlink.network.client.PairingClient
 import vertexlink.network.client.PairingResult
 import vertexlink.store.PairedDesktopStore
@@ -28,11 +29,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
   private val _targetAddress = mutableStateOf<String?>(null)
   val targetAddress: State<String?> = _targetAddress
 
+  private val _connectedDeviceName = mutableStateOf<String?>(null)
+  val connectedDeviceName: State<String?> = _connectedDeviceName
+
   private val _pairingState = mutableStateOf<PairingUiState>(PairingUiState.Idle)
   val pairingState: State<PairingUiState> = _pairingState
 
-  fun connectToDevice(desktopId: String, address: String) {
+  private val _selectedDevice = mutableStateOf<DiscoveredDevice?>(null)
+  val selectedDevice: State<DiscoveredDevice?> = _selectedDevice
+
+  fun selectDevice(device: DiscoveredDevice?) {
+    _selectedDevice.value = device
+  }
+
+  fun connectToDevice(desktopId: String, address: String, name: String) {
     _pairingState.value = PairingUiState.Connecting
+    _selectedDevice.value = null
 
     viewModelScope.launch(Dispatchers.IO) {
       try {
@@ -49,6 +61,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
           when (val authResult = pairingClient.authenticate(desktopId, token)) {
             is PairingResult.Accepted -> {
+              _connectedDeviceName.value = name
               _targetAddress.value = address
               return@launch
             }
@@ -81,6 +94,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         when (result) {
           is PairingResult.Accepted -> {
             pairedDesktopStore.save(result.desktopId, result.desktopName, result.token)
+            _connectedDeviceName.value = result.desktopName
             _targetAddress.value = address
           }
 
@@ -107,16 +121,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
   }
 
-  fun sendMessage(message: String) {
-    if (message.isNotEmpty()) {
-      viewModelScope.launch(Dispatchers.IO) {
-        try {
-          tcpClient?.send(message)
-        } catch (e: Exception) {
-          System.err.println("Failed to send: ${e.message}")
-        }
-      }
-    }
+  fun unpair(desktopId: String) {
+    pairedDesktopStore.remove(desktopId)
+    _selectedDevice.value = null
+  }
+
+  fun disconnect() {
+    tcpClient?.close()
+    tcpClient = null
+    _targetAddress.value = null
+    _connectedDeviceName.value = null
+    _pairingState.value = PairingUiState.Idle
   }
 
   override fun onCleared() {

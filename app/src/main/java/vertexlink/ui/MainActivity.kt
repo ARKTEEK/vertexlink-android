@@ -30,14 +30,14 @@ class MainActivity : ComponentActivity() {
     setContent {
       VertexLinkTheme {
         val targetAddress by mainViewModel.targetAddress
+        val connectedDeviceName by mainViewModel.connectedDeviceName
         val pairingState by mainViewModel.pairingState
 
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
           when {
             targetAddress != null -> ControlPanel(
-              onSendMessage = { message ->
-                mainViewModel.sendMessage(message)
-              },
+              deviceName = connectedDeviceName ?: "Desktop",
+              onDisconnect = mainViewModel::disconnect,
               modifier = Modifier.padding(innerPadding)
             )
 
@@ -53,9 +53,10 @@ class MainActivity : ComponentActivity() {
 
             else -> DiscoveryScreen(
               viewModel = discoveryViewModel,
-              onDeviceSelected = { desktopId, address ->
-                mainViewModel.connectToDevice(desktopId, address)
+              onConnect = { desktopId, address, name ->
+                mainViewModel.connectToDevice(desktopId, address, name)
               },
+              onUnpair = mainViewModel::unpair,
               modifier = Modifier.padding(innerPadding)
             )
           }
