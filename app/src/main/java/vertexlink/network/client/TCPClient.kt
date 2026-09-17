@@ -1,6 +1,8 @@
 package com.vertexlink.network
 
 import android.annotation.SuppressLint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.IOException
@@ -34,14 +36,15 @@ class TCPClient(private val host: String, private val port: Int) {
     reader = BufferedReader(InputStreamReader(sslSocket.getInputStream()))
   }
 
-  @Throws(IOException::class)
-  fun send(message: String) {
-    val w = writer ?: throw IOException("Not connected")
+  suspend fun send(message: String) {
+    withContext(Dispatchers.IO) {
+      val w = writer ?: throw IOException("Not connected")
 
-    synchronized(this) {
-      w.write(message)
-      w.write("\n")
-      w.flush()
+      synchronized(this@TCPClient) {
+        w.write(message)
+        w.write("\n")
+        w.flush()
+      }
     }
   }
 
@@ -57,8 +60,6 @@ class TCPClient(private val host: String, private val port: Int) {
       throw e
     }
   }
-
-  fun isConnected(): Boolean = socket?.isConnected == true && socket?.isClosed == false
 
   fun close() {
     try {

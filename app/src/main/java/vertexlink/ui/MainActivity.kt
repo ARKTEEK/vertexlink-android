@@ -30,14 +30,13 @@ class MainActivity : ComponentActivity() {
     setContent {
       VertexLinkTheme {
         val targetAddress by mainViewModel.targetAddress
-        val connectedDeviceName by mainViewModel.connectedDeviceName
         val pairingState by mainViewModel.pairingState
 
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
           when {
             targetAddress != null -> ControlPanel(
-              deviceName = connectedDeviceName ?: "Desktop",
               onDisconnect = mainViewModel::disconnect,
+              mouseController = mainViewModel.mouseController,
               modifier = Modifier.padding(innerPadding)
             )
 
@@ -48,7 +47,7 @@ class MainActivity : ComponentActivity() {
 
             pairingState is PairingUiState.AwaitingConfirmation -> PairingProgress(
               modifier = Modifier.padding(innerPadding),
-              pin = (pairingState as PairingUiState.AwaitingConfirmation).pin,
+              pin = (pairingState as PairingUiState.AwaitingConfirmation).pin
             )
 
             else -> DiscoveryScreen(

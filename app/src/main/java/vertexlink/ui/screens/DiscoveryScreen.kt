@@ -80,7 +80,7 @@ fun DiscoveryScreen(
       OutlinedTextField(
         value = query,
         onValueChange = { query = it },
-        placeholder = { Text("Search devices") },
+        placeholder = { Text("Search devices...") },
         leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
         singleLine = true,
         shape = RoundedCornerShape(999.dp),
