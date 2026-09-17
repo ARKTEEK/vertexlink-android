@@ -15,6 +15,7 @@ import vertexlink.device.DiscoveredDevice
 import vertexlink.network.client.PairingClient
 import vertexlink.network.client.PairingResult
 import vertexlink.network.client.UDPClient
+import vertexlink.network.security.CryptoUtils
 import vertexlink.store.PairedDesktopStore
 import vertexlink.ui.state.PairingUiState
 
@@ -73,7 +74,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
           when (val authResult = pairingClient.authenticate(desktopId, token)) {
             is PairingResult.Accepted -> {
-              openUdpChannel(address)
+              val sessionKey = CryptoUtils.deriveKeyFromToken(token)
+              openUdpChannel(address, sessionKey)
+
               _connectedDeviceName.value = name
               _targetAddress.value = address
               return@launch
@@ -109,7 +112,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         when (result) {
           is PairingResult.Accepted -> {
             pairedDesktopStore.save(result.desktopId, result.desktopName, result.token)
-            openUdpChannel(address)
+            val sessionKey = CryptoUtils.deriveKeyFromToken(result.token)
+            openUdpChannel(address, sessionKey)
             _connectedDeviceName.value = result.desktopName
             _targetAddress.value = address
           }
@@ -140,9 +144,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
   }
 
-  private fun openUdpChannel(address: String) {
+  private fun openUdpChannel(address: String, sessionKey: ByteArray) {
     udpClient?.close()
-    udpClient = UDPClient(address, DESKTOP_UDP_PORT)
+
+    val client = UDPClient(address, DESKTOP_UDP_PORT)
+    
+    client.setSessionKey(sessionKey)
+
+    udpClient = client
   }
 
   fun unpair(desktopId: String) {

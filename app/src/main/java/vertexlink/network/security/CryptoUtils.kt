@@ -19,12 +19,19 @@ object CryptoUtils {
     return try {
       val keyPairGenerator = KeyPairGenerator.getInstance("EC")
       val ecSpec = ECGenParameterSpec("secp256r1")
+
       keyPairGenerator.initialize(ecSpec)
       keyPairGenerator.generateKeyPair()
     } catch (e: Exception) {
       e.printStackTrace()
       null
     }
+  }
+
+  fun deriveKeyFromToken(token: String): ByteArray {
+    val digest = MessageDigest.getInstance("SHA-256")
+
+    return digest.digest(token.toByteArray(Charsets.UTF_8))
   }
 
   fun encodePublicKey(publicKey: PublicKey): String {
@@ -35,6 +42,7 @@ object CryptoUtils {
     return try {
       val keyBytes = Base64.getDecoder().decode(base64Key)
       val keyFactory = KeyFactory.getInstance("EC")
+
       keyFactory.generatePublic(X509EncodedKeySpec(keyBytes))
     } catch (e: Exception) {
       e.printStackTrace()
@@ -46,8 +54,10 @@ object CryptoUtils {
   fun calculatePin(localPrivateKey: PrivateKey, remotePublicKey: PublicKey): String {
     return try {
       val agreement = KeyAgreement.getInstance("ECDH")
+
       agreement.init(localPrivateKey)
       agreement.doPhase(remotePublicKey, true)
+
       val sharedSecret = agreement.generateSecret()
 
       val digest = MessageDigest.getInstance("SHA-256")

@@ -1,5 +1,6 @@
 package vertexlink.network.client
 
+import vertexlink.network.security.UDPCrypto
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
@@ -7,24 +8,31 @@ import java.net.InetAddress
 class UDPClient(serverAddressString: String, private val port: Int) {
   private val serverAddress: InetAddress = InetAddress.getByName(serverAddressString)
   private val socket: DatagramSocket = DatagramSocket()
-  private var isSending = false
+  private var crypto: UDPCrypto? = null
 
-  fun send(payload: ByteArray) {
+  fun setSessionKey(keyBytes: ByteArray) {
+    this.crypto = UDPCrypto(keyBytes)
+  }
+
+  fun send(command: String) {
+    val cryptoInstance = crypto
+
+    if (cryptoInstance == null) {
+      return
+    }
+
     try {
-      val packet = DatagramPacket(payload, payload.size, serverAddress, port)
+      val plainBytes = command.toByteArray(Charsets.UTF_8)
+      val encryptedBytes = cryptoInstance.encrypt(plainBytes)
+      val packet = DatagramPacket(encryptedBytes, encryptedBytes.size, serverAddress, port)
+
       socket.send(packet)
     } catch (e: Exception) {
-
       System.err.println("Failed to send UDP packet: ${e.message}")
     }
   }
 
-  fun stopPeriodicSending() {
-    isSending = false
-  }
-
   fun close() {
-    stopPeriodicSending()
     if (!socket.isClosed) {
       socket.close()
     }

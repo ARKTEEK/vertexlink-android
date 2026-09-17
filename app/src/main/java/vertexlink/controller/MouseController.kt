@@ -48,7 +48,7 @@ class MouseController(
     val client = udpClientProvider() ?: return
 
     scope.launch(Dispatchers.IO) {
-      client.send(command.toByteArray())
+      client.send(command)
     }
   }
 }
