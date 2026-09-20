@@ -37,7 +37,8 @@ class MainActivity : ComponentActivity() {
             targetAddress != null -> ControlPanel(
               onDisconnect = mainViewModel::disconnect,
               mouseController = mainViewModel.mouseController,
-              modifier = Modifier.padding(innerPadding)
+              keyboardController = mainViewModel.keyboardController,
+              modifier = Modifier
             )
 
             pairingState is PairingUiState.Connecting -> PairingProgress(

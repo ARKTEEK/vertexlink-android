@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.vertexlink.network.TCPClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import vertexlink.controller.KeyboardController
 import vertexlink.controller.MouseController
 import vertexlink.device.DeviceIdentity
 import vertexlink.device.DeviceInfo
@@ -37,6 +38,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     scope = viewModelScope,
     tcpClientProvider = { tcpClient },
     udpClientProvider = { udpClient }
+  )
+
+  val keyboardController = KeyboardController(
+    scope = viewModelScope,
+    tcpClientProvider = { tcpClient }
   )
 
   private val _targetAddress = mutableStateOf<String?>(null)
@@ -148,7 +154,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     udpClient?.close()
 
     val client = UDPClient(address, DESKTOP_UDP_PORT)
-    
+
     client.setSessionKey(sessionKey)
 
     udpClient = client
