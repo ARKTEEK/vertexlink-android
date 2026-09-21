@@ -32,9 +32,9 @@ import androidx.compose.ui.unit.dp
 import com.vertexlink.ui.theme.VertexColors
 import vertexlink.controller.KeyboardController
 import vertexlink.model.Macro
-import vertexlink.ui.components.keyboard.SystemKeyboardInput
-import vertexlink.ui.components.keyboard.macro.AddMacroDialog
-import vertexlink.ui.components.keyboard.macro.MacrosTab
+import vertexlink.ui.components.controlpanel.keyboard.SystemKeyboardInput
+import vertexlink.ui.components.controlpanel.keyboard.macro.AddMacroDialog
+import vertexlink.ui.components.controlpanel.keyboard.macro.MacrosTab
 
 private enum class KeyboardTab { MACROS, TYPE }
 

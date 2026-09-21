@@ -1,4 +1,4 @@
-package vertexlink.ui.components.keyboard.macro
+package vertexlink.ui.components.controlpanel.keyboard.macro
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
