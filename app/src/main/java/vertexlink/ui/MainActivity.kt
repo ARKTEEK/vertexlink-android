@@ -63,7 +63,6 @@ class MainActivity : ComponentActivity() {
               onConnect = { desktopId, address, name ->
                 mainViewModel.connectToDevice(desktopId, address, name)
               },
-              onUnpair = mainViewModel::unpair,
               modifier = Modifier.padding(innerPadding)
             )
           }

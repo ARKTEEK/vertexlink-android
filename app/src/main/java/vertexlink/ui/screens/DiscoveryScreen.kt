@@ -39,7 +39,6 @@ import vertexlink.ui.viewmodel.DiscoveryViewModel
 fun DiscoveryScreen(
   viewModel: DiscoveryViewModel,
   onConnect: (String, String, String) -> Unit,
-  onUnpair: (String) -> Unit,
   modifier: Modifier = Modifier
 ) {
   var isScanning by remember { mutableStateOf(true) }
@@ -128,7 +127,7 @@ fun DiscoveryScreen(
             selectedDevice = null
           },
           onUnpair = {
-            onUnpair(device.id)
+            viewModel.unpair(device.id)
             selectedDevice = null
           }
         )

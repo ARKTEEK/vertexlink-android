@@ -66,12 +66,6 @@ class MainViewModel @Inject constructor(
     }
   }
 
-  fun unpair(desktopId: String) {
-    deviceController.unpair(desktopId)
-    
-    _selectedDevice.value = null
-  }
-
   fun disconnect() {
     deviceController.disconnect()
 

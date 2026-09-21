@@ -98,10 +98,6 @@ class DeviceController @Inject constructor(
     session.attachUdpClient(client)
   }
 
-  fun unpair(desktopId: String) {
-    pairedDesktopStore.remove(desktopId)
-  }
-
   fun disconnect() {
     session.closeAll()
   }

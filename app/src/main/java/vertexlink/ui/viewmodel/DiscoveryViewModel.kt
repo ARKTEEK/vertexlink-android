@@ -44,6 +44,22 @@ class DiscoveryViewModel @Inject constructor(
     }
   }
 
+  fun unpair(id: String) {
+    pairedDesktopStore.remove(id)
+
+    val pairedIndex = pairedDevices.indexOfFirst { it.id == id }
+
+    if (pairedIndex == -1) {
+      return
+    }
+
+    val device = pairedDevices.removeAt(pairedIndex)
+    
+    if (device.isOnline) {
+      upsertUnpaired(device.copy(isPaired = false))
+    }
+  }
+
   private fun onDeviceFound(id: String, name: String, address: String) {
     val pairedIndex = pairedDevices.indexOfFirst { it.id == id }
 
@@ -57,8 +73,11 @@ class DiscoveryViewModel @Inject constructor(
       return
     }
 
-    val unpairedIndex = unpairedDevices.indexOfFirst { it.id == id }
-    val device = DiscoveredDevice(id, name, address, isPaired = false, isOnline = true)
+    upsertUnpaired(DiscoveredDevice(id, name, address, isPaired = false, isOnline = true))
+  }
+
+  private fun upsertUnpaired(device: DiscoveredDevice) {
+    val unpairedIndex = unpairedDevices.indexOfFirst { it.id == device.id }
 
     if (unpairedIndex != -1) {
       unpairedDevices[unpairedIndex] = device
