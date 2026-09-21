@@ -1,37 +1,34 @@
 package vertexlink.ui.viewmodel
 
-import android.app.Application
 import androidx.compose.runtime.mutableStateListOf
-import androidx.lifecycle.AndroidViewModel
-import vertexlink.device.DeviceIdentity
+import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import vertexlink.device.DeviceInfo
 import vertexlink.device.DiscoveredDevice
+import vertexlink.network.NetworkConfig
 import vertexlink.network.mdns.DeviceBroadcaster
 import vertexlink.network.mdns.DeviceScanner
 import vertexlink.store.PairedDesktopStore
+import javax.inject.Inject
 
-class DiscoveryViewModel(application: Application) : AndroidViewModel(application) {
-  private val identity = DeviceIdentity(application)
-  private val deviceId = identity.getId()
-  private val pairedDesktopStore = PairedDesktopStore(application)
-  private val deviceInfo = DeviceInfo()
-
-  val thisDeviceName: String = deviceInfo.getDeviceName(application)
+@HiltViewModel
+class DiscoveryViewModel @Inject constructor(
+  private val pairedDesktopStore: PairedDesktopStore,
+  private val deviceInfo: DeviceInfo,
+  private val networkConfig: NetworkConfig,
+  private val scanner: DeviceScanner,
+  private val broadcaster: DeviceBroadcaster
+) : ViewModel() {
+  val thisDeviceName: String = deviceInfo.getDeviceName()
 
   val pairedDevices = mutableStateListOf<DiscoveredDevice>()
   val unpairedDevices = mutableStateListOf<DiscoveredDevice>()
 
-  private val scanner = DeviceScanner(application, deviceId) { id, name, address ->
-    onDeviceFound(id, name, address)
-  }
-
-  private val broadcaster = DeviceBroadcaster(application, deviceId)
-
   fun startScanning() {
     loadPairedDevices()
     unpairedDevices.clear()
-    broadcaster.start(deviceInfo.getDeviceName(getApplication()), 28401)
-    scanner.start()
+    broadcaster.start(deviceInfo.getDeviceName(), networkConfig.tcpPort)
+    scanner.start { id, name, address -> onDeviceFound(id, name, address) }
   }
 
   fun stopScanning() {

@@ -1,9 +1,14 @@
 package vertexlink.network.client
 
 import com.vertexlink.network.TCPClient
-import kotlinx.coroutines.Dispatchers
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import vertexlink.device.DeviceIdentity
+import vertexlink.di.IoDispatcher
+import vertexlink.di.MainDispatcher
 import vertexlink.network.security.CryptoUtils
 import vertexlink.protocol.Protocol
 
@@ -19,15 +24,22 @@ sealed class PairingResult {
   data class Error(val message: String) : PairingResult()
 }
 
-class PairingClient(
-  private val tcpClient: TCPClient,
-  private val identity: DeviceIdentity
+class PairingClient @AssistedInject constructor(
+  @Assisted private val tcpClient: TCPClient,
+  private val identity: DeviceIdentity,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+  @MainDispatcher private val mainDispatcher: CoroutineDispatcher
 ) {
+  @AssistedFactory
+  interface Factory {
+    fun create(tcpClient: TCPClient): PairingClient
+  }
+
   suspend fun authenticate(
     desktopId: String,
     token: String,
     timeoutMs: Int = 15000
-  ): PairingResult = withContext(Dispatchers.IO) {
+  ): PairingResult = withContext(ioDispatcher) {
     try {
       val payload = Protocol.encode(
         "AUTH",
@@ -56,7 +68,7 @@ class PairingClient(
     deviceName: String,
     onPinGenerated: (String) -> Unit,
     timeoutMs: Int = 15000
-  ): PairingResult = withContext(Dispatchers.IO) {
+  ): PairingResult = withContext(ioDispatcher) {
     try {
       val keyPair = CryptoUtils.generateKeyPair()
         ?: return@withContext PairingResult.Error("Failed to generate key pair")
@@ -89,7 +101,7 @@ class PairingClient(
 
       val pin = CryptoUtils.calculatePin(keyPair.private, remotePublicKey)
 
-      withContext(Dispatchers.Main) {
+      withContext(mainDispatcher) {
         onPinGenerated(pin)
       }
 

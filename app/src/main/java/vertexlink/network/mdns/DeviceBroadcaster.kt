@@ -1,18 +1,22 @@
 package vertexlink.network.mdns
 
-import android.content.Context
 import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
+import dagger.hilt.android.scopes.ViewModelScoped
+import vertexlink.device.DeviceIdentity
+import javax.inject.Inject
 
-class DeviceBroadcaster(context: Context, private val deviceId: String) {
+@ViewModelScoped
+class DeviceBroadcaster @Inject constructor(
+  private val nsdManager: NsdManager,
+  identity: DeviceIdentity
+) {
 
-  private val nsdManager =
-    context.getSystemService(Context.NSD_SERVICE) as NsdManager
+  private val deviceId = identity.getId()
 
   private val serviceType = "_vertexlink._tcp."
 
-  private var registrationListener:
-      NsdManager.RegistrationListener? = null
+  private var registrationListener: NsdManager.RegistrationListener? = null
 
   private var isRegistered = false
 
@@ -20,7 +24,6 @@ class DeviceBroadcaster(context: Context, private val deviceId: String) {
     if (registrationListener != null) {
       return
     }
-
 
     val serviceInfo = NsdServiceInfo().apply {
       serviceName = deviceName

@@ -40,7 +40,6 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,7 +56,6 @@ import com.vertexlink.ui.theme.VertexColors
 import vertexlink.controller.KeyboardController
 import vertexlink.controller.MouseController
 import vertexlink.model.Macro
-import vertexlink.store.MacroStore
 import vertexlink.ui.components.common.IconRoundButton
 import vertexlink.ui.modifier.touchpadInput
 
@@ -67,6 +65,9 @@ fun ControlPanel(
   onDisconnect: () -> Unit,
   mouseController: MouseController,
   keyboardController: KeyboardController,
+  macros: List<Macro>,
+  onAddMacro: (Macro) -> Unit,
+  onDeleteMacro: (String) -> Unit,
   modifier: Modifier = Modifier
 ) {
   var showKeyboard by remember { mutableStateOf(false) }
@@ -78,13 +79,6 @@ fun ControlPanel(
   val context = LocalContext.current
   val activity = context as? Activity
   val isImeVisible = WindowInsets.isImeVisible
-
-  val macroStore = remember { MacroStore(context) }
-  var macros by remember { mutableStateOf(emptyList<Macro>()) }
-
-  LaunchedEffect(Unit) {
-    macros = macroStore.getAll()
-  }
 
   DisposableEffect(Unit) {
     val previousOrientation = activity?.requestedOrientation
@@ -159,14 +153,8 @@ fun ControlPanel(
           KeyboardPanel(
             keyboardController = keyboardController,
             macros = macros,
-            onAddMacro = { macro ->
-              macroStore.add(macro)
-              macros = macroStore.getAll()
-            },
-            onDeleteMacro = { id ->
-              macroStore.remove(id)
-              macros = macroStore.getAll()
-            },
+            onAddMacro = onAddMacro,
+            onDeleteMacro = onDeleteMacro,
             onClose = { showKeyboard = false },
             modifier = Modifier
               .align(Alignment.BottomStart)

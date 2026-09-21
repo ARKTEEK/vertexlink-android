@@ -1,7 +1,10 @@
 package com.vertexlink.network
 
 import android.annotation.SuppressLint
-import kotlinx.coroutines.Dispatchers
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.BufferedWriter
@@ -15,8 +18,18 @@ import java.security.cert.X509Certificate
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocket
 import javax.net.ssl.X509TrustManager
+import vertexlink.di.IoDispatcher
 
-class TCPClient(private val host: String, private val port: Int) {
+class TCPClient @AssistedInject constructor(
+  @Assisted private val host: String,
+  @Assisted private val port: Int,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+) {
+  @AssistedFactory
+  interface Factory {
+    fun create(host: String, port: Int): TCPClient
+  }
+
   private var socket: SSLSocket? = null
   private var writer: BufferedWriter? = null
   private var reader: BufferedReader? = null
@@ -37,7 +50,7 @@ class TCPClient(private val host: String, private val port: Int) {
   }
 
   suspend fun send(message: String) {
-    withContext(Dispatchers.IO) {
+    withContext(ioDispatcher) {
       val w = writer ?: throw IOException("Not connected")
 
       synchronized(this@TCPClient) {

@@ -1,23 +1,24 @@
 package vertexlink.network.mdns
 
-import android.content.Context
 import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
 import android.net.wifi.WifiManager
+import dagger.hilt.android.scopes.ViewModelScoped
+import vertexlink.device.DeviceIdentity
+import javax.inject.Inject
 
-class DeviceScanner(
-  context: Context,
-  private val deviceId: String,
-  private val onDeviceDiscovered: (String, String, String) -> Unit
+@ViewModelScoped
+class DeviceScanner @Inject constructor(
+  private val nsdManager: NsdManager,
+  private val wifiManager: WifiManager,
+  identity: DeviceIdentity
 ) {
-  private val nsdManager = context.getSystemService(Context.NSD_SERVICE) as NsdManager
-  private val wifiManager =
-    context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+  private val deviceId = identity.getId()
   private var multicastLock: WifiManager.MulticastLock? = null
   private val serviceType = "_vertexlink._tcp"
   private var listener: NsdManager.DiscoveryListener? = null
 
-  fun start() {
+  fun start(onDeviceDiscovered: (String, String, String) -> Unit) {
     if (listener != null) {
       return
     }

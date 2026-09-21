@@ -1,16 +1,20 @@
 package vertexlink.controller
 
-import com.vertexlink.network.TCPClient
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import vertexlink.network.client.UDPClient
+import vertexlink.di.ApplicationScope
+import vertexlink.di.IoDispatcher
+import vertexlink.network.ConnectionSession
 import java.io.IOException
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class MouseController(
-  private val tcpClientProvider: () -> TCPClient?,
-  private val udpClientProvider: () -> UDPClient?,
-  private val scope: CoroutineScope
+@Singleton
+class MouseController @Inject constructor(
+  private val session: ConnectionSession,
+  @ApplicationScope private val scope: CoroutineScope,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
   fun sendMouseMove(dx: Int, dy: Int) {
     sendUdpCommand("MOUSE_MOVE:$dx,$dy")
@@ -33,9 +37,9 @@ class MouseController(
   }
 
   private fun sendTcpCommand(command: String) {
-    val client = tcpClientProvider() ?: return
+    val client = session.tcpClient ?: return
 
-    scope.launch(Dispatchers.IO) {
+    scope.launch(ioDispatcher) {
       try {
         client.send(command)
       } catch (e: IOException) {
@@ -45,9 +49,9 @@ class MouseController(
   }
 
   private fun sendUdpCommand(command: String) {
-    val client = udpClientProvider() ?: return
+    val client = session.udpClient ?: return
 
-    scope.launch(Dispatchers.IO) {
+    scope.launch(ioDispatcher) {
       client.send(command)
     }
   }

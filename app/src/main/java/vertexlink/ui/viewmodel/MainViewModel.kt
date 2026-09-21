@@ -1,49 +1,41 @@
 package vertexlink.ui.viewmodel
 
-import android.app.Application
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vertexlink.network.TCPClient
-import kotlinx.coroutines.Dispatchers
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import vertexlink.controller.KeyboardController
 import vertexlink.controller.MouseController
-import vertexlink.device.DeviceIdentity
 import vertexlink.device.DeviceInfo
 import vertexlink.device.DiscoveredDevice
+import vertexlink.di.IoDispatcher
+import vertexlink.network.ConnectionSession
+import vertexlink.network.NetworkConfig
 import vertexlink.network.client.PairingClient
 import vertexlink.network.client.PairingResult
 import vertexlink.network.client.UDPClient
 import vertexlink.network.security.CryptoUtils
 import vertexlink.store.PairedDesktopStore
 import vertexlink.ui.state.PairingUiState
+import javax.inject.Inject
 
-private const val DESKTOP_PORT = 28401
-private const val DESKTOP_UDP_PORT = 28402
-
-class MainViewModel(application: Application) : AndroidViewModel(application) {
-  private val identity = DeviceIdentity(application.applicationContext)
-  private val deviceInfo = DeviceInfo()
-  private val pairedDesktopStore = PairedDesktopStore(application.applicationContext)
-
-  var tcpClient: TCPClient? = null
-    private set
-
-  var udpClient: UDPClient? = null
-    private set
-
-  val mouseController = MouseController(
-    scope = viewModelScope,
-    tcpClientProvider = { tcpClient },
-    udpClientProvider = { udpClient }
-  )
-
-  val keyboardController = KeyboardController(
-    scope = viewModelScope,
-    tcpClientProvider = { tcpClient }
-  )
+@HiltViewModel
+class MainViewModel @Inject constructor(
+  private val deviceInfo: DeviceInfo,
+  private val pairedDesktopStore: PairedDesktopStore,
+  private val networkConfig: NetworkConfig,
+  private val session: ConnectionSession,
+  private val tcpClientFactory: TCPClient.Factory,
+  private val udpClientFactory: UDPClient.Factory,
+  private val pairingClientFactory: PairingClient.Factory,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+  val mouseController: MouseController,
+  val keyboardController: KeyboardController
+) : ViewModel() {
 
   private val _targetAddress = mutableStateOf<String?>(null)
   val targetAddress: State<String?> = _targetAddress
@@ -65,14 +57,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     _pairingState.value = PairingUiState.Connecting
     _selectedDevice.value = null
 
-    viewModelScope.launch(Dispatchers.IO) {
+    viewModelScope.launch(ioDispatcher) {
       try {
-        val client = TCPClient(address, DESKTOP_PORT)
+        val client = tcpClientFactory.create(address, networkConfig.tcpPort)
         client.connect()
 
-        tcpClient = client
+        session.attachTcpClient(client)
 
-        val pairingClient = PairingClient(client, identity)
+        val pairingClient = pairingClientFactory.create(client)
         val stored = pairedDesktopStore.find(desktopId)
 
         if (stored != null) {
@@ -93,15 +85,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             PairingResult.TimedOut -> {
-              client.close()
-              tcpClient = null
+              session.closeTcpClient()
               _pairingState.value = PairingUiState.TimedOut
               return@launch
             }
 
             is PairingResult.Error -> {
-              client.close()
-              tcpClient = null
+              session.closeTcpClient()
               _pairingState.value = PairingUiState.Error(authResult.message)
               return@launch
             }
@@ -109,7 +99,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         val result = pairingClient.requestPairing(
-          deviceName = deviceInfo.getDeviceName(getApplication()),
+          deviceName = deviceInfo.getDeviceName(),
           onPinGenerated = { pin ->
             _pairingState.value = PairingUiState.AwaitingConfirmation(pin, address)
           }
@@ -125,20 +115,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
           }
 
           is PairingResult.Rejected -> {
-            client.close()
-            tcpClient = null
+            session.closeTcpClient()
             _pairingState.value = PairingUiState.Rejected(result.reason)
           }
 
           PairingResult.TimedOut -> {
-            client.close()
-            tcpClient = null
+            session.closeTcpClient()
             _pairingState.value = PairingUiState.TimedOut
           }
 
           is PairingResult.Error -> {
-            client.close()
-            tcpClient = null
+            session.closeTcpClient()
             _pairingState.value = PairingUiState.Error(result.message)
           }
         }
@@ -151,13 +138,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
   }
 
   private fun openUdpChannel(address: String, sessionKey: ByteArray) {
-    udpClient?.close()
-
-    val client = UDPClient(address, DESKTOP_UDP_PORT)
+    val client = udpClientFactory.create(address, networkConfig.udpPort)
 
     client.setSessionKey(sessionKey)
 
-    udpClient = client
+    session.attachUdpClient(client)
   }
 
   fun unpair(desktopId: String) {
@@ -166,10 +151,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
   }
 
   fun disconnect() {
-    tcpClient?.close()
-    tcpClient = null
-    udpClient?.close()
-    udpClient = null
+    session.closeAll()
     _targetAddress.value = null
     _connectedDeviceName.value = null
     _pairingState.value = PairingUiState.Idle
@@ -177,7 +159,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
   override fun onCleared() {
     super.onCleared()
-    tcpClient?.close()
-    udpClient?.close()
+    session.closeAll()
   }
 }

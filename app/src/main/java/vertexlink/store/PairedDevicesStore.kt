@@ -2,8 +2,12 @@ package vertexlink.store
 
 import android.content.Context
 import androidx.core.content.edit
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class PairedDesktopStore(context: Context) {
+@Singleton
+class PairedDesktopStore @Inject constructor(@ApplicationContext context: Context) {
   private val prefs = context.getSharedPreferences("vertexlink_paired", Context.MODE_PRIVATE)
 
   fun save(desktopId: String, desktopName: String, token: String) {

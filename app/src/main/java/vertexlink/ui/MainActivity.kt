@@ -11,16 +11,20 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import com.vertexlink.ui.theme.VertexLinkTheme
+import dagger.hilt.android.AndroidEntryPoint
 import vertexlink.ui.screens.ControlPanel
 import vertexlink.ui.screens.DiscoveryScreen
 import vertexlink.ui.screens.PairingProgress
 import vertexlink.ui.state.PairingUiState
 import vertexlink.ui.viewmodel.DiscoveryViewModel
+import vertexlink.ui.viewmodel.MacroViewModel
 import vertexlink.ui.viewmodel.MainViewModel
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
   private val discoveryViewModel by viewModels<DiscoveryViewModel>()
   private val mainViewModel by viewModels<MainViewModel>()
+  private val macroViewModel by viewModels<MacroViewModel>()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -38,6 +42,9 @@ class MainActivity : ComponentActivity() {
               onDisconnect = mainViewModel::disconnect,
               mouseController = mainViewModel.mouseController,
               keyboardController = mainViewModel.keyboardController,
+              macros = macroViewModel.macros.value,
+              onAddMacro = macroViewModel::addMacro,
+              onDeleteMacro = macroViewModel::deleteMacro,
               modifier = Modifier
             )
 

@@ -1,17 +1,21 @@
 package vertexlink.store
 
 import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
 import org.json.JSONArray
 import org.json.JSONObject
 import vertexlink.model.KeyCodes
 import vertexlink.model.Macro
 import java.util.UUID
+import javax.inject.Inject
+import javax.inject.Singleton
 import androidx.core.content.edit
 
 private const val PREFS_NAME = "vertexlink_macros"
 private const val KEY_MACROS = "macros"
 
-class MacroStore(context: Context) {
+@Singleton
+class MacroStore @Inject constructor(@ApplicationContext context: Context) {
   private val prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
   fun getAll(): List<Macro> {

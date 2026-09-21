@@ -1,14 +1,20 @@
 package vertexlink.controller
 
-import com.vertexlink.network.TCPClient
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import vertexlink.di.ApplicationScope
+import vertexlink.di.IoDispatcher
+import vertexlink.network.ConnectionSession
 import java.io.IOException
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class KeyboardController(
-  private val tcpClientProvider: () -> TCPClient?,
-  private val scope: CoroutineScope
+@Singleton
+class KeyboardController @Inject constructor(
+  private val session: ConnectionSession,
+  @ApplicationScope private val scope: CoroutineScope,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
   fun sendKey(vkCode: Int) {
     sendCombo(listOf(vkCode))
@@ -17,10 +23,10 @@ class KeyboardController(
   fun sendCombo(vkCodes: List<Int>) {
     if (vkCodes.isEmpty()) return
 
-    val client = tcpClientProvider() ?: return
+    val client = session.tcpClient ?: return
     val payload = vkCodes.joinToString(",")
 
-    scope.launch(Dispatchers.IO) {
+    scope.launch(ioDispatcher) {
       try {
         client.send("KEY_COMBO:$payload")
       } catch (e: IOException) {

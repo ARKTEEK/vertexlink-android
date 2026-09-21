@@ -2,9 +2,13 @@ package vertexlink.device
 
 import android.content.Context
 import androidx.core.content.edit
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.UUID
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class DeviceIdentity(context: Context) {
+@Singleton
+class DeviceIdentity @Inject constructor(@ApplicationContext context: Context) {
 
   private val prefs = context.getSharedPreferences("vertexlink", Context.MODE_PRIVATE)
 

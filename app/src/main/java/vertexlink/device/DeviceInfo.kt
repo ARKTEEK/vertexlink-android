@@ -3,9 +3,13 @@ package vertexlink.device
 import android.content.Context
 import android.os.Build
 import android.provider.Settings
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class DeviceInfo {
-  fun getDeviceName(context: Context): String {
+@Singleton
+class DeviceInfo @Inject constructor(@ApplicationContext private val context: Context) {
+  fun getDeviceName(): String {
     var deviceName = Settings.Global.getString(context.contentResolver, Settings.Global.DEVICE_NAME)
 
     if (deviceName.isNullOrBlank()) {
