@@ -45,13 +45,11 @@ fun DeviceRow(
     Column(modifier = Modifier.weight(1f)) {
       Text(text = device.name, style = MaterialTheme.typography.bodyMedium)
 
-      if (device.isPaired) {
-        Spacer(modifier = Modifier.height(4.dp))
-        StatusPill(
-          text = if (device.isOnline) "Online" else "Offline",
-          isPositive = device.isOnline
-        )
-      }
+      Spacer(modifier = Modifier.height(4.dp))
+      StatusPill(
+        text = if (device.isOnline) "Online" else "Offline",
+        isPositive = device.isOnline
+      )
     }
   }
 }
