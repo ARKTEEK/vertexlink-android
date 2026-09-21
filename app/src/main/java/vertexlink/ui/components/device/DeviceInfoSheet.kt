@@ -115,11 +115,12 @@ fun DeviceInfoSheet(
         )
       ) {
         Text(
-          if (device.isPaired) {
+          text = if (device.isPaired) {
             "Connect"
           } else {
             "Pair & Connect"
-          }
+          },
+          color = VertexColors.TextOnAccent
         )
       }
     }
