@@ -16,8 +16,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.vertexlink.ui.theme.VertexColors
+import vertexlink.device.DiscoveredDevice
 
 enum class DeviceKind { Desktop, Phone }
+
+val DiscoveredDevice.kind: DeviceKind
+  get() = if (isPaired) DeviceKind.Desktop else DeviceKind.Phone
 
 @Composable
 fun DeviceAvatar(

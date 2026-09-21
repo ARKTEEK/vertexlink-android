@@ -50,7 +50,7 @@ fun DeviceInfoSheet(
         .border(1.dp, VertexColors.BorderSubtle, RoundedCornerShape(14.dp))
         .padding(14.dp)
     ) {
-      DeviceAvatar(kind = DeviceKind.Phone, showStatusDot = false, isOnline = device.isOnline)
+      DeviceAvatar(kind = device.kind, showStatusDot = false, isOnline = device.isOnline)
 
       Spacer(modifier = Modifier.width(12.dp))
 

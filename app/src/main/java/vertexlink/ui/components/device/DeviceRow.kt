@@ -34,7 +34,7 @@ fun DeviceRow(
       .padding(10.dp)
   ) {
     DeviceAvatar(
-      kind = DeviceKind.Phone,
+      kind = device.kind,
       showStatusDot = false,
       isOnline = device.isOnline,
       size = 36.dp
