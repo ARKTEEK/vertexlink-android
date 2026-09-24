@@ -42,14 +42,15 @@ class DeviceController @Inject constructor(
       val stored = pairedDesktopStore.find(desktopId)
 
       if (stored != null) {
-        val (_, token) = stored
+        val (storedName, token) = stored
 
         when (val authResult = pairingClient.authenticate(desktopId, token)) {
           is PairingResult.Accepted -> {
             val sessionKey = CryptoUtils.deriveKeyFromToken(token)
             openUdpChannel(address, sessionKey)
+            session.markConnected(address, storedName)
 
-            return@withContext authResult
+            return@withContext authResult.copy(desktopName = storedName)
           }
 
           is PairingResult.Rejected -> {
@@ -76,6 +77,7 @@ class DeviceController @Inject constructor(
           val sessionKey = CryptoUtils.deriveKeyFromToken(result.token)
 
           openUdpChannel(address, sessionKey)
+          session.markConnected(address, result.desktopName)
         }
 
         else -> {

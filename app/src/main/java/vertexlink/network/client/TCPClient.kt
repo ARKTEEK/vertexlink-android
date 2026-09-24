@@ -41,6 +41,7 @@ class TCPClient @AssistedInject constructor(
 
     val sslSocket = sslContext.socketFactory.createSocket() as SSLSocket
     sslSocket.enabledProtocols = arrayOf("TLSv1.2", "TLSv1.3")
+    sslSocket.keepAlive = true
     sslSocket.connect(InetSocketAddress(host, port), timeoutMs)
     sslSocket.startHandshake()
 

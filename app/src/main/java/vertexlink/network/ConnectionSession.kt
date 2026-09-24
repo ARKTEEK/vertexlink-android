@@ -1,10 +1,14 @@
 package vertexlink.network
 
 import com.vertexlink.network.TCPClient
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import vertexlink.network.client.UDPClient
 import javax.inject.Inject
 import javax.inject.Singleton
 
+data class ActiveConnection(val address: String, val deviceName: String)
 
 @Singleton
 class ConnectionSession @Inject constructor() {
@@ -15,6 +19,9 @@ class ConnectionSession @Inject constructor() {
   @Volatile
   var udpClient: UDPClient? = null
     private set
+
+  private val _activeConnection = MutableStateFlow<ActiveConnection?>(null)
+  val activeConnection: StateFlow<ActiveConnection?> = _activeConnection.asStateFlow()
 
   fun attachTcpClient(client: TCPClient) {
     tcpClient = client
@@ -30,10 +37,16 @@ class ConnectionSession @Inject constructor() {
     udpClient = client
   }
 
+  fun markConnected(address: String, deviceName: String) {
+    _activeConnection.value = ActiveConnection(address, deviceName)
+  }
+
   fun closeAll() {
     closeTcpClient()
 
     udpClient?.close()
     udpClient = null
+
+    _activeConnection.value = null
   }
 }
