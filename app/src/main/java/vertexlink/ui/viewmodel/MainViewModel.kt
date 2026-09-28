@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
+import vertexlink.controller.AudioController
 import vertexlink.controller.DeviceController
 import vertexlink.controller.KeyboardController
 import vertexlink.controller.MouseController
@@ -24,6 +25,7 @@ class MainViewModel @Inject constructor(
   private val session: ConnectionSession,
   val mouseController: MouseController,
   val keyboardController: KeyboardController,
+  val audioController: AudioController,
   @ApplicationContext private val context: Context
 ) : ViewModel() {
 

@@ -56,6 +56,7 @@ class MainActivity : ComponentActivity() {
               onDisconnect = mainViewModel::disconnect,
               mouseController = mainViewModel.mouseController,
               keyboardController = mainViewModel.keyboardController,
+              audioController = mainViewModel.audioController,
               macros = macroViewModel.macros.value,
               onAddMacro = macroViewModel::addMacro,
               onDeleteMacro = macroViewModel::deleteMacro,

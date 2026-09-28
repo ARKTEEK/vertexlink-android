@@ -15,8 +15,9 @@ import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -24,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.vertexlink.ui.theme.VertexColors
+import vertexlink.controller.AudioController
 import vertexlink.controller.KeyboardController
 import vertexlink.controller.MouseController
 import vertexlink.model.Macro
@@ -39,6 +41,7 @@ fun ControlPanel(
   onDisconnect: () -> Unit,
   mouseController: MouseController,
   keyboardController: KeyboardController,
+  audioController: AudioController,
   macros: List<Macro>,
   onAddMacro: (Macro) -> Unit,
   onDeleteMacro: (String) -> Unit,
@@ -47,10 +50,22 @@ fun ControlPanel(
   var showKeyboard by remember { mutableStateOf(false) }
   var showVolumePopup by remember { mutableStateOf(false) }
   var showInfoPopup by remember { mutableStateOf(false) }
-  var volume by remember { mutableFloatStateOf(50f) }
+  var volume by remember { mutableIntStateOf(50) }
+  var isMuted by remember { mutableStateOf(false) }
   var isMenuOpen by remember { mutableStateOf(false) }
 
   val isImeVisible = WindowInsets.isImeVisible
+
+  LaunchedEffect(showVolumePopup) {
+    if (showVolumePopup) {
+      val audioState = audioController.fetchState()
+
+      if (audioState != null) {
+        volume = audioState.volume
+        isMuted = audioState.isMuted
+      }
+    }
+  }
 
   ImmersiveLandscapeEffect()
 
@@ -93,7 +108,15 @@ fun ControlPanel(
         if (showVolumePopup) {
           VolumePopup(
             volume = volume,
-            onVolumeChange = { volume = it },
+            isMuted = isMuted,
+            onVolumeChange = { newVolume ->
+              volume = newVolume
+              audioController.setVolume(newVolume)
+            },
+            onMuteChange = { newMuted ->
+              isMuted = newMuted
+              audioController.setMuted(newMuted)
+            },
             modifier = Modifier.align(Alignment.TopEnd)
           )
         }
