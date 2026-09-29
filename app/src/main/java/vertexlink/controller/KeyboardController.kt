@@ -2,6 +2,7 @@ package vertexlink.controller
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import vertexlink.di.ApplicationScope
 import vertexlink.di.IoDispatcher
@@ -16,22 +17,35 @@ class KeyboardController @Inject constructor(
   @ApplicationScope private val scope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
-  fun sendKey(vkCode: Int) {
-    sendCombo(listOf(vkCode))
+  private val pendingKeyCombos = Channel<List<Int>>(Channel.UNLIMITED)
+
+  init {
+    scope.launch(ioDispatcher) {
+      for (virtualKeyCodes in pendingKeyCombos) {
+        sendTcpCommand("KEY_COMBO:${virtualKeyCodes.joinToString(",")}")
+      }
+    }
   }
 
-  fun sendCombo(vkCodes: List<Int>) {
-    if (vkCodes.isEmpty()) return
+  fun sendKey(virtualKeyCode: Int) {
+    sendCombo(listOf(virtualKeyCode))
+  }
 
+  fun sendCombo(virtualKeyCodes: List<Int>) {
+    if (virtualKeyCodes.isEmpty()) {
+      return
+    }
+
+    pendingKeyCombos.trySend(virtualKeyCodes)
+  }
+
+  private suspend fun sendTcpCommand(command: String) {
     val client = session.tcpClient ?: return
-    val payload = vkCodes.joinToString(",")
 
-    scope.launch(ioDispatcher) {
-      try {
-        client.send("KEY_COMBO:$payload")
-      } catch (e: IOException) {
-        System.err.println("Failed to send key combo: ${e.message}")
-      }
+    try {
+      client.send(command)
+    } catch (exception: IOException) {
+      System.err.println("Failed to send key combo: ${exception.message}")
     }
   }
 }
