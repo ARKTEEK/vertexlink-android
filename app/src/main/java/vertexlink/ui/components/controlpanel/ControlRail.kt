@@ -30,7 +30,7 @@ fun ControlRail(
   onToggleMenu: () -> Unit,
   onDisconnect: () -> Unit,
   onToggleKeyboard: () -> Unit,
-  onSyncClipboard: () -> Unit,
+  onToggleClipboard: () -> Unit,
   onToggleVolume: () -> Unit,
   onToggleInfo: () -> Unit,
   modifier: Modifier = Modifier
@@ -73,13 +73,13 @@ fun ControlRail(
 
       IconRoundButton(
         icon = Icons.Outlined.ContentPaste,
-        contentDescription = "Sync clipboard",
-        onClick = onSyncClipboard
+        contentDescription = "Toggle clipboard",
+        onClick = onToggleClipboard
       )
 
       IconRoundButton(
         icon = Icons.AutoMirrored.Outlined.VolumeUp,
-        contentDescription = "Volume",
+        contentDescription = "Toggle Volume",
         onClick = onToggleVolume
       )
 

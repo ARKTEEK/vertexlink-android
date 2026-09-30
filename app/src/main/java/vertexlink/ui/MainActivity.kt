@@ -57,6 +57,7 @@ class MainActivity : ComponentActivity() {
               mouseController = mainViewModel.mouseController,
               keyboardController = mainViewModel.keyboardController,
               audioController = mainViewModel.audioController,
+              clipboardController = mainViewModel.clipboardController,
               macros = macroViewModel.macros.value,
               onAddMacro = macroViewModel::addMacro,
               onDeleteMacro = macroViewModel::deleteMacro,
