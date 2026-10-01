@@ -24,20 +24,25 @@ fun MacroChip(
       onClick = onRun,
       modifier = Modifier.fillMaxWidth()
     ) {
-      Text(text = macro.name, maxLines = 1, style = MaterialTheme.typography.labelMedium)
+      Text(
+        text = macro.name,
+        maxLines = 1,
+        style = MaterialTheme.typography.labelMedium,
+        modifier = Modifier.padding(end = 24.dp)
+      )
     }
 
     IconButton(
       onClick = { showDelete = true },
       modifier = Modifier
-        .align(Alignment.TopEnd)
-        .size(18.dp)
+        .align(Alignment.CenterEnd)
+        .size(40.dp)
     ) {
       Icon(
         imageVector = Icons.Outlined.Delete,
         contentDescription = "Delete macro",
         tint = VertexColors.TextSecondary,
-        modifier = Modifier.size(12.dp)
+        modifier = Modifier.size(20.dp)
       )
     }
   }
