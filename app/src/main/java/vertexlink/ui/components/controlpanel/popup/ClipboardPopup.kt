@@ -7,26 +7,24 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.PlaylistAdd
-import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.outlined.Computer
-import androidx.compose.material.icons.outlined.ContentCopy
-import androidx.compose.material.icons.outlined.ContentPaste
 import androidx.compose.material.icons.outlined.DeleteSweep
 import androidx.compose.material.icons.outlined.PhoneAndroid
-import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -49,105 +48,135 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-private enum class HistoryTab(val label: String, val icon: ImageVector) {
-  DESKTOP("PC", Icons.Outlined.Computer),
-  PHONE("Phone", Icons.Outlined.PhoneAndroid)
+private enum class HistoryTab(
+  val label: String,
+  val icon: ImageVector,
+  val hint: String,
+  val emptyText: String
+) {
+  PC(
+    label = "PC",
+    icon = Icons.Outlined.Computer,
+    hint = "Tap an item to copy it to your phone",
+    emptyText = "Copy something on your PC and it shows up here"
+  ),
+  PHONE(
+    label = "Phone",
+    icon = Icons.Outlined.PhoneAndroid,
+    hint = "Tap an item to send it to your PC",
+    emptyText = "Copy something on your phone and it shows up here"
+  )
 }
 
 @Composable
 fun ClipboardPopup(
-  text: String,
-  onTextChange: (String) -> Unit,
+  draft: String,
+  onDraftChange: (String) -> Unit,
   desktopHistory: List<ClipboardEntry>,
   phoneHistory: List<ClipboardEntry>,
-  onRefresh: () -> Unit,
+  onCopyToPhone: (ClipboardEntry) -> Unit,
+  onSendToDesktop: (ClipboardEntry) -> Unit,
+  onSaveDraftToPhone: () -> Unit,
+  onSaveDraftToDesktop: () -> Unit,
   onClearDesktopHistory: () -> Unit,
   onClearPhoneHistory: () -> Unit,
-  onCopyEntryToPhone: (ClipboardEntry) -> Unit,
-  onSendEntryToDesktop: (ClipboardEntry) -> Unit,
-  onSendToDesktop: () -> Unit,
-  onAppendToDesktop: () -> Unit,
-  onCopyToPhone: () -> Unit,
-  onPasteFromPhone: () -> Unit,
   modifier: Modifier = Modifier
 ) {
-  var selectedTab by remember { mutableStateOf(HistoryTab.DESKTOP) }
+  var selectedTab by remember { mutableStateOf(HistoryTab.PC) }
 
-  Row(
-    horizontalArrangement = Arrangement.spacedBy(12.dp),
+  val isPcTab = selectedTab == HistoryTab.PC
+  val entries = if (isPcTab) desktopHistory else phoneHistory
+  val canSave = draft.isNotBlank()
+
+  Column(
+    verticalArrangement = Arrangement.spacedBy(8.dp),
     modifier = modifier
+      .width(300.dp)
       .clip(RoundedCornerShape(16.dp))
       .background(VertexColors.BgSurfaceHigh.copy(alpha = 0.95f))
       .border(1.dp, VertexColors.BorderSubtle, RoundedCornerShape(16.dp))
+      .verticalScroll(rememberScrollState())
       .padding(12.dp)
   ) {
-    Column(
-      verticalArrangement = Arrangement.spacedBy(8.dp),
-      modifier = Modifier.width(200.dp)
+    Row(
+      horizontalArrangement = Arrangement.spacedBy(8.dp),
+      verticalAlignment = Alignment.CenterVertically,
+      modifier = Modifier
+        .fillMaxWidth()
+        .height(36.dp)
     ) {
       Row(
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
-        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-          .fillMaxWidth()
-          .height(32.dp)
+          .weight(1f)
+          .fillMaxHeight()
+          .clip(RoundedCornerShape(10.dp))
+          .background(VertexColors.BgSurfaceLow)
+          .border(1.dp, VertexColors.BorderSubtle, RoundedCornerShape(10.dp))
+          .padding(2.dp)
       ) {
         HistoryTab.entries.forEach { tab ->
-          TabButton(
+          TabSegment(
             tab = tab,
             selected = tab == selectedTab,
             onClick = { selectedTab = tab },
             modifier = Modifier.weight(1f)
           )
         }
-
-        SmallIconButton(
-          icon = Icons.Outlined.Refresh,
-          contentDescription = "Refresh history",
-          onClick = onRefresh
-        )
-
-        SmallIconButton(
-          icon = Icons.Outlined.DeleteSweep,
-          contentDescription = "Clear this history",
-          onClick = if (selectedTab == HistoryTab.DESKTOP) onClearDesktopHistory else onClearPhoneHistory
-        )
       }
 
-      val isDesktopTab = selectedTab == HistoryTab.DESKTOP
-      val entries = if (isDesktopTab) desktopHistory else phoneHistory
-
       Box(
+        contentAlignment = Alignment.Center,
         modifier = Modifier
-          .fillMaxWidth()
-          .height(144.dp)
-          .clip(RoundedCornerShape(8.dp))
-          .background(VertexColors.BgSurfaceLow)
-          .border(1.dp, VertexColors.BorderSubtle, RoundedCornerShape(8.dp))
+          .size(36.dp)
+          .clip(RoundedCornerShape(10.dp))
+          .clickable(onClick = if (isPcTab) onClearDesktopHistory else onClearPhoneHistory)
       ) {
-        if (entries.isEmpty()) {
-          Text(
-            text = if (isDesktopTab) {
-              "Nothing copied on the PC yet"
-            } else {
-              "Nothing copied on the phone yet"
-            },
-            fontSize = 11.sp,
-            color = VertexColors.TextPrimary.copy(alpha = 0.5f),
-            modifier = Modifier
-              .align(Alignment.Center)
-              .padding(12.dp)
-          )
-        } else {
-          LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(entries, key = { it.id }) { entry ->
+        Icon(
+          imageVector = Icons.Outlined.DeleteSweep,
+          contentDescription = "Clear history",
+          tint = VertexColors.TextSecondary,
+          modifier = Modifier.size(20.dp)
+        )
+      }
+    }
+
+    Text(
+      text = selectedTab.hint,
+      fontSize = 11.sp,
+      color = VertexColors.TextSecondary
+    )
+
+    Box(
+      modifier = Modifier
+        .fillMaxWidth()
+        .height(120.dp)
+        .clip(RoundedCornerShape(10.dp))
+        .background(VertexColors.BgSurfaceLow)
+        .border(1.dp, VertexColors.BorderSubtle, RoundedCornerShape(10.dp))
+    ) {
+      if (entries.isEmpty()) {
+        Text(
+          text = selectedTab.emptyText,
+          fontSize = 12.sp,
+          color = VertexColors.TextSecondary,
+          modifier = Modifier
+            .align(Alignment.Center)
+            .padding(16.dp)
+        )
+      } else {
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+          items(entries, key = { it.id }) { entry ->
+            Column {
               HistoryRow(
                 entry = entry,
-                isDesktop = isDesktopTab,
-                onSelect = { onTextChange(entry.text) },
-                onTransfer = {
-                  if (isDesktopTab) onCopyEntryToPhone(entry) else onSendEntryToDesktop(entry)
-                }
+                onClick = { if (isPcTab) onCopyToPhone(entry) else onSendToDesktop(entry) }
+              )
+
+              Box(
+                modifier = Modifier
+                  .fillMaxWidth()
+                  .height(1.dp)
+                  .background(VertexColors.BorderSubtle)
               )
             }
           }
@@ -155,209 +184,106 @@ fun ClipboardPopup(
       }
     }
 
-    Column(
-      verticalArrangement = Arrangement.spacedBy(8.dp),
-      modifier = Modifier.width(200.dp)
+    Box(
+      modifier = Modifier
+        .fillMaxWidth()
+        .heightIn(min = 44.dp, max = 72.dp)
+        .clip(RoundedCornerShape(10.dp))
+        .background(VertexColors.BgSurfaceLow)
+        .border(1.dp, VertexColors.BorderSubtle, RoundedCornerShape(10.dp))
+        .padding(horizontal = 10.dp, vertical = 12.dp)
     ) {
-      Box(
+      if (draft.isEmpty()) {
+        Text(
+          text = "Write something to save…",
+          fontSize = 13.sp,
+          color = VertexColors.TextSecondary
+        )
+      }
+
+      BasicTextField(
+        value = draft,
+        onValueChange = onDraftChange,
+        textStyle = TextStyle(color = VertexColors.TextPrimary, fontSize = 13.sp),
+        cursorBrush = SolidColor(VertexColors.AccentPrimary),
         modifier = Modifier
           .fillMaxWidth()
-          .height(80.dp)
-          .clip(RoundedCornerShape(8.dp))
-          .background(VertexColors.BgSurfaceLow)
-          .border(1.dp, VertexColors.BorderSubtle, RoundedCornerShape(8.dp))
-          .padding(8.dp)
-      ) {
-        BasicTextField(
-          value = text,
-          onValueChange = onTextChange,
-          textStyle = TextStyle(color = VertexColors.TextPrimary, fontSize = 13.sp),
-          cursorBrush = SolidColor(VertexColors.AccentPrimary),
-          modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-        )
-      }
+          .verticalScroll(rememberScrollState())
+      )
+    }
 
-      Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.fillMaxWidth()
-      ) {
-        ActionChip(
-          icon = Icons.AutoMirrored.Outlined.Send,
-          label = "Send to PC",
-          onClick = onSendToDesktop,
-          modifier = Modifier.weight(1f)
-        )
+    Row(
+      horizontalArrangement = Arrangement.spacedBy(8.dp),
+      modifier = Modifier.fillMaxWidth()
+    ) {
+      SaveButton(
+        icon = Icons.Outlined.PhoneAndroid,
+        label = "Save to phone",
+        enabled = canSave,
+        onClick = onSaveDraftToPhone,
+        modifier = Modifier.weight(1f)
+      )
 
-        ActionChip(
-          icon = Icons.AutoMirrored.Outlined.PlaylistAdd,
-          label = "Append to PC",
-          onClick = onAppendToDesktop,
-          modifier = Modifier.weight(1f)
-        )
-      }
-
-      Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.fillMaxWidth()
-      ) {
-        ActionChip(
-          icon = Icons.Outlined.ContentCopy,
-          label = "Copy to phone",
-          onClick = onCopyToPhone,
-          modifier = Modifier.weight(1f)
-        )
-
-        ActionChip(
-          icon = Icons.Outlined.ContentPaste,
-          label = "Paste from phone",
-          onClick = onPasteFromPhone,
-          modifier = Modifier.weight(1f)
-        )
-      }
+      SaveButton(
+        icon = Icons.Outlined.Computer,
+        label = "Save to PC",
+        enabled = canSave,
+        onClick = onSaveDraftToDesktop,
+        modifier = Modifier.weight(1f)
+      )
     }
   }
 }
 
 @Composable
-private fun TabButton(
+private fun TabSegment(
   tab: HistoryTab,
   selected: Boolean,
   onClick: () -> Unit,
   modifier: Modifier = Modifier
 ) {
-  val shape = RoundedCornerShape(8.dp)
-
   Row(
-    horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
+    horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
     verticalAlignment = Alignment.CenterVertically,
     modifier = modifier
-      .fillMaxSize()
-      .clip(shape)
-      .background(if (selected) VertexColors.AccentPrimary.copy(alpha = 0.2f) else VertexColors.BgSurfaceLow)
-      .border(1.dp, if (selected) VertexColors.AccentPrimary else VertexColors.BorderSubtle, shape)
+      .fillMaxHeight()
+      .clip(RoundedCornerShape(8.dp))
+      .background(if (selected) VertexColors.AccentPrimary.copy(alpha = 0.25f) else VertexColors.BgSurfaceLow)
       .clickable(onClick = onClick)
-      .padding(horizontal = 4.dp)
   ) {
     Icon(
       imageVector = tab.icon,
       contentDescription = null,
-      tint = if (selected) VertexColors.AccentPrimary else VertexColors.TextPrimary.copy(alpha = 0.7f),
-      modifier = Modifier.size(14.dp)
+      tint = if (selected) VertexColors.AccentPrimary else VertexColors.TextSecondary,
+      modifier = Modifier.size(16.dp)
     )
 
     Text(
       text = tab.label,
-      fontSize = 11.sp,
+      fontSize = 13.sp,
       maxLines = 1,
-      color = VertexColors.TextPrimary
+      color = if (selected) VertexColors.TextPrimary else VertexColors.TextSecondary
     )
   }
 }
 
 @Composable
-private fun SmallIconButton(
-  icon: ImageVector,
-  contentDescription: String,
-  onClick: () -> Unit
-) {
-  Box(
-    contentAlignment = Alignment.Center,
-    modifier = Modifier
-      .size(32.dp)
-      .clip(RoundedCornerShape(8.dp))
-      .clickable(onClick = onClick)
-  ) {
-    Icon(
-      imageVector = icon,
-      contentDescription = contentDescription,
-      tint = VertexColors.TextPrimary.copy(alpha = 0.8f),
-      modifier = Modifier.size(18.dp)
-    )
-  }
-}
-
-@Composable
-private fun HistoryRow(
-  entry: ClipboardEntry,
-  isDesktop: Boolean,
-  onSelect: () -> Unit,
-  onTransfer: () -> Unit
-) {
-  val time = remember(entry.timestamp) {
-    SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(entry.timestamp))
-  }
-
-  Row(
-    horizontalArrangement = Arrangement.spacedBy(6.dp),
-    verticalAlignment = Alignment.CenterVertically,
-    modifier = Modifier
-      .fillMaxWidth()
-      .clickable(onClick = onSelect)
-      .padding(horizontal = 8.dp, vertical = 6.dp)
-  ) {
-    Column(modifier = Modifier.weight(1f)) {
-      Text(
-        text = entry.text.replace('\n', ' ').trim(),
-        fontSize = 12.sp,
-        maxLines = 2,
-        overflow = TextOverflow.Ellipsis,
-        color = VertexColors.TextPrimary
-      )
-
-      Text(
-        text = time,
-        fontSize = 10.sp,
-        color = VertexColors.TextPrimary.copy(alpha = 0.5f)
-      )
-    }
-
-    Row(
-      horizontalArrangement = Arrangement.spacedBy(3.dp),
-      verticalAlignment = Alignment.CenterVertically,
-      modifier = Modifier
-        .clip(RoundedCornerShape(12.dp))
-        .background(VertexColors.AccentPrimary.copy(alpha = 0.15f))
-        .clickable(onClick = onTransfer)
-        .padding(horizontal = 6.dp, vertical = 4.dp)
-    ) {
-      Icon(
-        imageVector = if (isDesktop) Icons.Outlined.PhoneAndroid else Icons.Outlined.Computer,
-        contentDescription = if (isDesktop) "Copy to phone" else "Send to PC",
-        tint = VertexColors.AccentPrimary,
-        modifier = Modifier.size(14.dp)
-      )
-
-      Text(
-        text = if (isDesktop) "To phone" else "To PC",
-        fontSize = 10.sp,
-        maxLines = 1,
-        color = VertexColors.AccentPrimary
-      )
-    }
-  }
-}
-
-@Composable
-private fun ActionChip(
+private fun SaveButton(
   icon: ImageVector,
   label: String,
+  enabled: Boolean,
   onClick: () -> Unit,
   modifier: Modifier = Modifier
 ) {
-  val shape = RoundedCornerShape(10.dp)
-
   Row(
-    horizontalArrangement = Arrangement.spacedBy(4.dp),
+    horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
     verticalAlignment = Alignment.CenterVertically,
     modifier = modifier
-      .height(44.dp)
-      .clip(shape)
-      .background(VertexColors.BgSurfaceLow)
-      .border(1.dp, VertexColors.BorderSubtle, shape)
-      .clickable(onClick = onClick)
-      .padding(horizontal = 6.dp)
+      .height(36.dp)
+      .alpha(if (enabled) 1f else 0.4f)
+      .clip(RoundedCornerShape(10.dp))
+      .background(VertexColors.AccentPrimary.copy(alpha = 0.2f))
+      .clickable(enabled = enabled, onClick = onClick)
   ) {
     Icon(
       imageVector = icon,
@@ -368,10 +294,42 @@ private fun ActionChip(
 
     Text(
       text = label,
-      fontSize = 11.sp,
-      lineHeight = 12.sp,
-      maxLines = 2,
+      fontSize = 12.sp,
+      maxLines = 1,
       color = VertexColors.TextPrimary
+    )
+  }
+}
+
+@Composable
+private fun HistoryRow(
+  entry: ClipboardEntry,
+  onClick: () -> Unit
+) {
+  val time = remember(entry.timestamp) {
+    SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(entry.timestamp))
+  }
+
+  Column(
+    modifier = Modifier
+      .fillMaxWidth()
+      .heightIn(min = 48.dp)
+      .clickable(onClick = onClick)
+      .padding(horizontal = 10.dp, vertical = 8.dp)
+  ) {
+    Text(
+      text = entry.text.replace('\n', ' ').trim(),
+      fontSize = 13.sp,
+      lineHeight = 17.sp,
+      maxLines = 3,
+      overflow = TextOverflow.Ellipsis,
+      color = VertexColors.TextPrimary
+    )
+
+    Text(
+      text = time,
+      fontSize = 10.sp,
+      color = VertexColors.TextSecondary
     )
   }
 }
