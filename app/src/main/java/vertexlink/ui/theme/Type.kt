@@ -45,7 +45,7 @@ val Typography = Typography(
     fontFamily = PlusJakartaSans,
     fontWeight = FontWeight.Bold,
     fontSize = 10.5.sp,
-    color = VertexColors.AccentPrimary
+    color = VertexColors.Magenta
   ),
   bodyLarge = TextStyle(
     fontFamily = Inter,

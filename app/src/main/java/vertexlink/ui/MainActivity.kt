@@ -6,16 +6,19 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.core.content.ContextCompat
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.toColorInt
+import com.vertexlink.ui.theme.VertexColors
 import com.vertexlink.ui.theme.VertexLinkTheme
 import dagger.hilt.android.AndroidEntryPoint
 import vertexlink.ui.screens.ControlPanel
@@ -42,7 +45,13 @@ class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    enableEdgeToEdge()
+    enableEdgeToEdge(
+      statusBarStyle = SystemBarStyle.dark("#4E1238".toColorInt()),
+      navigationBarStyle = SystemBarStyle.light(
+        "#FFF0F5".toColorInt(),
+        "#4E1238".toColorInt()
+      )
+    )
     requestNotificationPermissionIfNeeded()
 
     setContent {
@@ -50,7 +59,10 @@ class MainActivity : ComponentActivity() {
         val targetAddress by mainViewModel.targetAddress
         val pairingState by mainViewModel.pairingState
 
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+        Scaffold(
+          modifier = Modifier.fillMaxSize(),
+          containerColor = VertexColors.Wine
+        ) { innerPadding ->
           when {
             targetAddress != null -> ControlPanel(
               onDisconnect = mainViewModel::disconnect,
@@ -65,12 +77,12 @@ class MainActivity : ComponentActivity() {
             )
 
             pairingState is PairingUiState.Connecting -> PairingProgress(
-              modifier = Modifier.padding(innerPadding),
+              modifier = Modifier,
               pin = null
             )
 
             pairingState is PairingUiState.AwaitingConfirmation -> PairingProgress(
-              modifier = Modifier.padding(innerPadding),
+              modifier = Modifier,
               pin = (pairingState as PairingUiState.AwaitingConfirmation).pin
             )
 

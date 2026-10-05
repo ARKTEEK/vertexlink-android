@@ -1,7 +1,9 @@
 package vertexlink.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,10 +27,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import com.vertexlink.ui.theme.VertexBrushes
 import com.vertexlink.ui.theme.VertexColors
 import vertexlink.device.DiscoveredDevice
-import vertexlink.ui.components.common.SectionHeader
+import vertexlink.ui.components.common.CaptionStrip
 import vertexlink.ui.components.device.DeviceInfoSheet
 import vertexlink.ui.components.device.DeviceRow
 import vertexlink.ui.components.device.HeaderCard
@@ -65,53 +69,83 @@ fun DiscoveryScreen(
     Column(
       modifier = Modifier
         .fillMaxSize()
-        .padding(16.dp)
+        .background(VertexBrushes.Hero)
     ) {
-      HeaderCard(
-        deviceName = viewModel.thisDeviceName,
-        isScanning = isScanning,
-        onRefresh = { viewModel.startScanning() },
-        onToggleScanning = { isScanning = !isScanning }
-      )
+      Column(modifier = Modifier.padding(start = 20.dp, top = 24.dp, end = 20.dp, bottom = 24.dp)) {
+        HeaderCard(
+          deviceName = viewModel.thisDeviceName,
+          isScanning = isScanning,
+          onRefresh = { viewModel.startScanning() },
+          onToggleScanning = { isScanning = !isScanning }
+        )
 
-      Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-      OutlinedTextField(
-        value = query,
-        onValueChange = { query = it },
-        placeholder = { Text("Search devices...") },
-        leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
-        singleLine = true,
-        shape = RoundedCornerShape(999.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-          focusedBorderColor = VertexColors.BorderFocus,
-          unfocusedBorderColor = VertexColors.BorderSubtle
-        ),
-        modifier = Modifier.fillMaxWidth()
-      )
+        OutlinedTextField(
+          value = query,
+          onValueChange = { query = it },
+          placeholder = {
+            Text("Search devices...", color = VertexColors.TextMuted)
+          },
+          leadingIcon = {
+            Icon(
+              Icons.Outlined.Search,
+              contentDescription = null,
+              tint = VertexColors.Magenta
+            )
+          },
+          singleLine = true,
+          shape = RoundedCornerShape(18.dp),
+          colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = VertexColors.Card,
+            unfocusedContainerColor = VertexColors.Card,
+            focusedBorderColor = VertexColors.AccentSecondary,
+            unfocusedBorderColor = VertexColors.BorderSubtle,
+            focusedTextColor = VertexColors.TextPrimary,
+            unfocusedTextColor = VertexColors.TextPrimary,
+            cursorColor = VertexColors.AccentPrimary
+          ),
+          modifier = Modifier.fillMaxWidth()
+        )
+      }
 
-      if (filteredPaired.isEmpty() && filteredUnpaired.isEmpty()) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-          Text(
-            text = if (isScanning) "Searching for devices\u2026" else "Discovery is off",
-            style = MaterialTheme.typography.bodySmall
-          )
-        }
-      } else {
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-          if (filteredPaired.isNotEmpty()) {
-            item { SectionHeader(title = "Paired") }
+      Column(
+        modifier = Modifier
+          .fillMaxSize()
+          .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
+          .background(VertexColors.Blush)
+      ) {
+        CaptionStrip(title = "Devices", horizontalPadding = 16.dp)
 
-            items(filteredPaired, key = { it.id }) { device ->
-              DeviceRow(device = device, onClick = { selectedDevice = device })
+        Column(
+          modifier = Modifier
+            .fillMaxSize()
+            .padding(start = 16.dp, top = 12.dp, end = 16.dp)
+        ) {
+          if (filteredPaired.isEmpty() && filteredUnpaired.isEmpty()) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+              Text(
+                text = if (isScanning) "Searching for devices\u2026" else "Discovery is off",
+                style = MaterialTheme.typography.bodySmall,
+                color = VertexColors.TextSecondary
+              )
             }
-          }
+          } else {
+            LazyColumn(
+              modifier = Modifier.fillMaxSize(),
+              contentPadding = PaddingValues(bottom = 24.dp)
+            ) {
+              items(filteredPaired, key = { it.id }) { device ->
+                DeviceRow(device = device, onClick = { selectedDevice = device })
+              }
 
-          if (filteredUnpaired.isNotEmpty()) {
-            item { SectionHeader(title = "Available") }
+              if (filteredPaired.isNotEmpty() && filteredUnpaired.isNotEmpty()) {
+                item { Spacer(modifier = Modifier.height(8.dp)) }
+              }
 
-            items(filteredUnpaired, key = { it.id }) { device ->
-              DeviceRow(device = device, onClick = { selectedDevice = device })
+              items(filteredUnpaired, key = { it.id }) { device ->
+                DeviceRow(device = device, onClick = { selectedDevice = device })
+              }
             }
           }
         }

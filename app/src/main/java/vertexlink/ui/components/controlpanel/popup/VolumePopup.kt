@@ -39,6 +39,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.vertexlink.ui.theme.VertexColors
+import vertexlink.ui.components.common.IconButtonTone
 import vertexlink.ui.components.common.IconRoundButton
 import kotlin.math.roundToInt
 
@@ -64,7 +65,7 @@ fun VolumePopup(
     modifier = modifier
       .widthIn(min = 220.dp)
       .clip(RoundedCornerShape(16.dp))
-      .background(VertexColors.BgSurfaceHigh.copy(alpha = 0.95f))
+      .background(VertexColors.Card.copy(alpha = 0.97f))
       .border(1.dp, VertexColors.BorderSubtle, RoundedCornerShape(16.dp))
       .padding(horizontal = 14.dp, vertical = 8.dp)
   ) {
@@ -76,7 +77,8 @@ fun VolumePopup(
       },
       contentDescription = if (isMuted) "Unmute" else "Mute",
       onClick = { onMuteChange(!isMuted) },
-      active = isMuted
+      active = isMuted,
+      tone = IconButtonTone.Danger
     )
 
     IconRoundButton(
@@ -92,7 +94,7 @@ fun VolumePopup(
       colors = SliderDefaults.colors(
         thumbColor = VertexColors.AccentPrimary,
         activeTrackColor = VertexColors.AccentPrimary,
-        inactiveTrackColor = VertexColors.BorderSubtle
+        inactiveTrackColor = VertexColors.PinkSoft
       ),
       modifier = Modifier.width(140.dp)
     )
@@ -109,7 +111,7 @@ fun VolumePopup(
         .width(56.dp)
         .height(40.dp)
         .clip(RoundedCornerShape(8.dp))
-        .background(VertexColors.BgSurfaceLow)
+        .background(VertexColors.Blush)
         .border(1.dp, VertexColors.BorderSubtle, RoundedCornerShape(8.dp))
     ) {
       BasicTextField(

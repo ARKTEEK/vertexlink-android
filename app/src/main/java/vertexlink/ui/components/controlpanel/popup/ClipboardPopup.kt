@@ -93,7 +93,7 @@ fun ClipboardPopup(
     modifier = modifier
       .width(300.dp)
       .clip(RoundedCornerShape(16.dp))
-      .background(VertexColors.BgSurfaceHigh.copy(alpha = 0.95f))
+      .background(VertexColors.Card.copy(alpha = 0.97f))
       .border(1.dp, VertexColors.BorderSubtle, RoundedCornerShape(16.dp))
       .verticalScroll(rememberScrollState())
       .padding(12.dp)
@@ -110,7 +110,7 @@ fun ClipboardPopup(
           .weight(1f)
           .fillMaxHeight()
           .clip(RoundedCornerShape(10.dp))
-          .background(VertexColors.BgSurfaceLow)
+          .background(VertexColors.Blush)
           .border(1.dp, VertexColors.BorderSubtle, RoundedCornerShape(10.dp))
           .padding(2.dp)
       ) {
@@ -134,7 +134,7 @@ fun ClipboardPopup(
         Icon(
           imageVector = Icons.Outlined.DeleteSweep,
           contentDescription = "Clear history",
-          tint = VertexColors.TextSecondary,
+          tint = VertexColors.Magenta,
           modifier = Modifier.size(20.dp)
         )
       }
@@ -151,7 +151,7 @@ fun ClipboardPopup(
         .fillMaxWidth()
         .height(120.dp)
         .clip(RoundedCornerShape(10.dp))
-        .background(VertexColors.BgSurfaceLow)
+        .background(VertexColors.Blush)
         .border(1.dp, VertexColors.BorderSubtle, RoundedCornerShape(10.dp))
     ) {
       if (entries.isEmpty()) {
@@ -189,7 +189,7 @@ fun ClipboardPopup(
         .fillMaxWidth()
         .heightIn(min = 44.dp, max = 72.dp)
         .clip(RoundedCornerShape(10.dp))
-        .background(VertexColors.BgSurfaceLow)
+        .background(VertexColors.Blush)
         .border(1.dp, VertexColors.BorderSubtle, RoundedCornerShape(10.dp))
         .padding(horizontal = 10.dp, vertical = 12.dp)
     ) {
@@ -248,13 +248,13 @@ private fun TabSegment(
     modifier = modifier
       .fillMaxHeight()
       .clip(RoundedCornerShape(8.dp))
-      .background(if (selected) VertexColors.AccentPrimary.copy(alpha = 0.25f) else VertexColors.BgSurfaceLow)
+      .background(if (selected) VertexColors.AccentPrimary else VertexColors.Blush)
       .clickable(onClick = onClick)
   ) {
     Icon(
       imageVector = tab.icon,
       contentDescription = null,
-      tint = if (selected) VertexColors.AccentPrimary else VertexColors.TextSecondary,
+      tint = if (selected) VertexColors.TextOnAccent else VertexColors.TextSecondary,
       modifier = Modifier.size(16.dp)
     )
 
@@ -262,7 +262,7 @@ private fun TabSegment(
       text = tab.label,
       fontSize = 13.sp,
       maxLines = 1,
-      color = if (selected) VertexColors.TextPrimary else VertexColors.TextSecondary
+      color = if (selected) VertexColors.TextOnAccent else VertexColors.TextSecondary
     )
   }
 }
@@ -282,13 +282,13 @@ private fun SaveButton(
       .height(36.dp)
       .alpha(if (enabled) 1f else 0.4f)
       .clip(RoundedCornerShape(10.dp))
-      .background(VertexColors.AccentPrimary.copy(alpha = 0.2f))
+      .background(VertexColors.TealSoft)
       .clickable(enabled = enabled, onClick = onClick)
   ) {
     Icon(
       imageVector = icon,
       contentDescription = null,
-      tint = VertexColors.AccentPrimary,
+      tint = VertexColors.TealDeep,
       modifier = Modifier.size(16.dp)
     )
 
@@ -296,7 +296,7 @@ private fun SaveButton(
       text = label,
       fontSize = 12.sp,
       maxLines = 1,
-      color = VertexColors.TextPrimary
+      color = VertexColors.TealDeep
     )
   }
 }

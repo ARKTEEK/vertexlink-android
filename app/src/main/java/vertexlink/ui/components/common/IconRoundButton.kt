@@ -16,45 +16,54 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.vertexlink.ui.theme.VertexColors
 
+enum class IconButtonTone { Primary, Secondary, Danger }
+
 @Composable
 fun IconRoundButton(
   icon: ImageVector,
   contentDescription: String?,
   onClick: () -> Unit,
   modifier: Modifier = Modifier,
-  active: Boolean = false
+  active: Boolean = false,
+  tone: IconButtonTone = IconButtonTone.Primary,
+  tinted: Boolean = false
 ) {
+  val fill = when {
+    !active && tinted && tone == IconButtonTone.Danger -> VertexColors.DangerSurface
+    !active -> VertexColors.Card
+    tone == IconButtonTone.Secondary -> VertexColors.AccentSecondary
+    tone == IconButtonTone.Danger -> VertexColors.Danger
+    else -> VertexColors.AccentPrimary
+  }
+
+  val border = when {
+    active -> Color.Transparent
+    tinted && tone == IconButtonTone.Danger -> VertexColors.DangerBorder
+    else -> VertexColors.BorderSubtle
+  }
+
+  val tint = when {
+    active -> VertexColors.TextOnAccent
+    tone == IconButtonTone.Danger -> VertexColors.Danger
+    tone == IconButtonTone.Secondary -> VertexColors.TealDeep
+    else -> VertexColors.Magenta
+  }
+
+  val shape = RoundedCornerShape(12.dp)
+
   Box(
     contentAlignment = Alignment.Center,
     modifier = modifier
       .size(40.dp)
-      .clip(RoundedCornerShape(8.dp))
-      .background(
-        if (active) {
-          VertexColors.AccentPrimary
-        } else {
-          VertexColors.BgSurfaceHigh
-        }
-      )
-      .border(
-        1.dp,
-        if (active) {
-          Color.Transparent
-        } else {
-          VertexColors.BorderSubtle
-        },
-        RoundedCornerShape(8.dp)
-      )
+      .clip(shape)
+      .background(fill)
+      .border(1.dp, border, shape)
       .clickable(onClick = onClick)
   ) {
     Icon(
       imageVector = icon,
       contentDescription = contentDescription,
-      tint = if (active) {
-        VertexColors.TextOnAccent
-      } else {
-        VertexColors.TextSecondary
-      },
+      tint = tint,
       modifier = Modifier.size(22.dp)
     )
   }

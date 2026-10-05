@@ -9,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import vertexlink.controller.AudioController
+import vertexlink.controller.ClipboardController
 import vertexlink.controller.DeviceController
 import vertexlink.controller.KeyboardController
 import vertexlink.controller.MouseController
@@ -26,6 +27,7 @@ class MainViewModel @Inject constructor(
   val mouseController: MouseController,
   val keyboardController: KeyboardController,
   val audioController: AudioController,
+  val clipboardController: ClipboardController,
   @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -33,7 +35,7 @@ class MainViewModel @Inject constructor(
   val targetAddress: State<String?> = _targetAddress
 
   private val _connectedDeviceName =
-    mutableStateOf<String?>(session.activeConnection.value?.deviceName)
+    mutableStateOf(session.activeConnection.value?.deviceName)
 
   private val _pairingState = mutableStateOf<PairingUiState>(PairingUiState.Idle)
   val pairingState: State<PairingUiState> = _pairingState

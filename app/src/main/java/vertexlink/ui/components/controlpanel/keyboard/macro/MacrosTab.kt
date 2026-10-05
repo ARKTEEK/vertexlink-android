@@ -1,15 +1,23 @@
 package vertexlink.ui.components.controlpanel.keyboard.macro
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.vertexlink.ui.theme.VertexColors
 import vertexlink.model.Macro
 
 @Composable
@@ -32,7 +40,14 @@ fun MacrosTab(
     }
 
     item {
-      OutlinedButton(onClick = onAddClick, modifier = Modifier.fillMaxWidth()) {
+      OutlinedButton(
+        onClick = onAddClick,
+        modifier = Modifier.fillMaxWidth(),
+        colors = ButtonDefaults.outlinedButtonColors(
+          containerColor = VertexColors.TealSoft,
+          contentColor = VertexColors.TealDeep
+        )
+      ) {
         Icon(Icons.Outlined.Add, contentDescription = null)
         Spacer(modifier = Modifier.width(4.dp))
         Text("New")

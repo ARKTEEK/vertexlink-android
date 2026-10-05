@@ -24,14 +24,14 @@ fun GesturesInfoPopup(
     modifier = modifier
       .widthIn(min = 200.dp)
       .clip(RoundedCornerShape(16.dp))
-      .background(VertexColors.BgSurfaceHigh.copy(alpha = 0.95f))
+      .background(VertexColors.Card.copy(alpha = 0.97f))
       .border(1.dp, VertexColors.BorderSubtle, RoundedCornerShape(16.dp))
       .padding(12.dp)
   ) {
     Text(
       text = "Available Gestures",
       style = MaterialTheme.typography.titleSmall,
-      color = VertexColors.TextPrimary
+      color = VertexColors.Magenta
     )
     Text(
       text = "1 Finger Drag: Move cursor",

@@ -11,6 +11,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,9 +28,12 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.vertexlink.ui.theme.VertexColors
+import kotlinx.coroutines.delay
 import vertexlink.controller.KeyboardController
 import vertexlink.model.KeyCodes
+import kotlin.time.Duration.Companion.milliseconds
 
+private const val KEYBOARD_OPEN_DELAY_MS = 150L
 private const val ANCHOR = "\u200B"
 private val ANCHOR_VALUE = TextFieldValue(ANCHOR, selection = TextRange(ANCHOR.length))
 
@@ -43,7 +47,14 @@ fun SystemKeyboardInput(keyboardController: KeyboardController) {
 
   LaunchedEffect(Unit) {
     focusRequester.requestFocus()
+    delay(KEYBOARD_OPEN_DELAY_MS.milliseconds)
     softKeyboard?.show()
+  }
+
+  DisposableEffect(Unit) {
+    onDispose {
+      softKeyboard?.hide()
+    }
   }
 
   Box(modifier = Modifier.fillMaxWidth()) {

@@ -26,7 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
-import com.vertexlink.ui.theme.VertexColors
+import com.vertexlink.ui.theme.VertexBrushes
 import kotlinx.coroutines.delay
 import vertexlink.controller.AudioController
 import vertexlink.controller.ClipboardController
@@ -41,6 +41,7 @@ import vertexlink.ui.components.controlpanel.TouchpadArea
 import vertexlink.ui.components.controlpanel.popup.ClipboardPopup
 import vertexlink.ui.components.controlpanel.popup.GesturesInfoPopup
 import vertexlink.ui.components.controlpanel.popup.VolumePopup
+import kotlin.time.Duration.Companion.milliseconds
 
 private const val VOLUME_AUTO_CLOSE_MS = 5_000L
 private const val CLIPBOARD_POLL_MS = 2_000L
@@ -100,7 +101,7 @@ fun ControlPanel(
         while (true) {
           clipboardController.fetchDesktopHistory()?.let { entries -> desktopHistory = entries }
 
-          delay(CLIPBOARD_POLL_MS)
+          delay(CLIPBOARD_POLL_MS.milliseconds)
         }
       }
 
@@ -110,7 +111,7 @@ fun ControlPanel(
 
   LaunchedEffect(activeSection, volume, isMuted) {
     if (activeSection == ControlSection.Volume) {
-      delay(VOLUME_AUTO_CLOSE_MS)
+      delay(VOLUME_AUTO_CLOSE_MS.milliseconds)
       activeSection = null
     }
   }
@@ -120,7 +121,7 @@ fun ControlPanel(
   Box(
     modifier = modifier
       .fillMaxSize()
-      .background(VertexColors.BgSurfaceMid)
+      .background(VertexBrushes.Control)
       .windowInsetsPadding(WindowInsets.displayCutout)
       .imePadding()
       .padding(16.dp)
@@ -214,7 +215,8 @@ fun ControlPanel(
         activeSection = activeSection,
         isMuted = isMuted,
         onToggleSection = { section -> toggleSection(section) },
-        onDisconnect = onDisconnect
+        onDisconnect = onDisconnect,
+        modifier = Modifier.align(Alignment.CenterVertically)
       )
     }
   }

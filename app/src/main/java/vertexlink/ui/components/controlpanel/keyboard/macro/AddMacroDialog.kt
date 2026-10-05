@@ -1,17 +1,40 @@
 package vertexlink.ui.components.controlpanel.keyboard.macro
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.outlined.Widgets
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -33,9 +56,18 @@ private val MACRO_KEY_OPTIONS: List<KeyOption> = buildList {
   add(KeyOption("↓", KeyCodes.VK_DOWN))
   add(KeyOption("←", KeyCodes.VK_LEFT))
   add(KeyOption("→", KeyCodes.VK_RIGHT))
-  for (c in 'A'..'Z') add(KeyOption(c.toString(), KeyCodes.vkForLetter(c)))
-  for (d in 0..9) add(KeyOption(d.toString(), KeyCodes.vkForDigit(d)))
-  for (f in 1..12) add(KeyOption("F$f", KeyCodes.vkForFunctionKey(f)))
+
+  for (c in 'A'..'Z') {
+    add(KeyOption(c.toString(), KeyCodes.vkForLetter(c)))
+  }
+
+  for (d in 0..9) {
+    add(KeyOption(d.toString(), KeyCodes.vkForDigit(d)))
+  }
+
+  for (f in 1..12) {
+    add(KeyOption("F$f", KeyCodes.vkForFunctionKey(f)))
+  }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -82,7 +114,7 @@ fun AddMacroDialog(
   ) {
     Surface(
       shape = RoundedCornerShape(16.dp),
-      color = VertexColors.BgSurfaceHigh.copy(alpha = 0.97f),
+      color = VertexColors.Card.copy(alpha = 0.97f),
       contentColor = VertexColors.TextPrimary,
       border = BorderStroke(1.dp, VertexColors.BorderSubtle),
       modifier = Modifier
@@ -116,8 +148,8 @@ fun AddMacroDialog(
             enabled = name.isNotBlank(),
             onClick = save,
             colors = IconButtonDefaults.iconButtonColors(
-              contentColor = Color.Black,
-              disabledContentColor = Color.Black
+              contentColor = VertexColors.Magenta,
+              disabledContentColor = VertexColors.TextMuted
             )
           ) {
             Icon(Icons.Outlined.Save, contentDescription = "Save macro")
@@ -148,10 +180,19 @@ fun AddMacroDialog(
             )
 
             FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-              FilterChip(selected = useCtrl, onClick = { useCtrl = !useCtrl }, label = { Text("Ctrl") })
+              FilterChip(
+                selected = useCtrl,
+                onClick = { useCtrl = !useCtrl },
+                label = { Text("Ctrl") })
               FilterChip(selected = useAlt, onClick = { useAlt = !useAlt }, label = { Text("Alt") })
-              FilterChip(selected = useShift, onClick = { useShift = !useShift }, label = { Text("Shift") })
-              FilterChip(selected = useMeta, onClick = { useMeta = !useMeta }, label = { Text("Win") })
+              FilterChip(
+                selected = useShift,
+                onClick = { useShift = !useShift },
+                label = { Text("Shift") })
+              FilterChip(
+                selected = useMeta,
+                onClick = { useMeta = !useMeta },
+                label = { Text("Win") })
             }
           }
 

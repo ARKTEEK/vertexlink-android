@@ -29,13 +29,20 @@ fun DeviceAvatar(
   showStatusDot: Boolean,
   isOnline: Boolean,
   modifier: Modifier = Modifier,
-  size: Dp = 40.dp
+  size: Dp = 40.dp,
+  muted: Boolean = false
 ) {
   Box(
     modifier = modifier
       .size(size)
-      .clip(RoundedCornerShape(10.dp))
-      .background(VertexColors.BgSurfaceHigh),
+      .clip(RoundedCornerShape(12.dp))
+      .background(
+        if (muted) {
+          VertexColors.AvatarTileMuted
+        } else {
+          VertexColors.AvatarTile
+        }
+      ),
     contentAlignment = Alignment.Center
   ) {
     Icon(
@@ -45,7 +52,11 @@ fun DeviceAvatar(
         Icons.Outlined.Smartphone
       },
       contentDescription = null,
-      tint = VertexColors.AccentPrimary,
+      tint = if (muted) {
+        VertexColors.TextMuted
+      } else {
+        VertexColors.Magenta
+      },
       modifier = Modifier.size(size * 0.55f)
     )
 
@@ -57,7 +68,7 @@ fun DeviceAvatar(
           .clip(CircleShape)
           .background(
             if (isOnline) {
-              VertexColors.Success
+              VertexColors.AccentSecondary
             } else {
               VertexColors.TextMuted
             }

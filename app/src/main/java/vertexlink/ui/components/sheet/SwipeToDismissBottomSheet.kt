@@ -46,7 +46,7 @@ fun SwipeToDismissBottomSheet(
       .clickable(indication = null, interactionSource = noRippleSource, onClick = onDismiss)
   ) {
     Surface(
-      color = VertexColors.BgRootEnd,
+      color = VertexColors.Blush,
       shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
       modifier = Modifier
         .align(Alignment.BottomCenter)
@@ -88,7 +88,7 @@ fun SwipeToDismissBottomSheet(
             .padding(top = 10.dp)
             .width(36.dp)
             .height(4.dp)
-            .background(VertexColors.BorderStrong, RoundedCornerShape(999.dp))
+            .background(VertexColors.AccentPrimary, RoundedCornerShape(999.dp))
         )
 
         Box(

@@ -1,33 +1,83 @@
 package com.vertexlink.ui.theme
 
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
 object VertexColors {
-  val BgRootStart = Color(0xFFF6F2FF)
-  val BgRootEnd = Color(0xFFFFFFFF)
-  val BgSurfaceLow = Color(0x8CFFFFFF)
-  val BgSurfaceMid = Color(0x9EFFFFFF)
-  val BgSurfaceHigh = Color(0xFFEFE8FB)
-  val BgSurfaceHover = Color(0xFFE4D9F9)
+  val WineDeep = Color(0xFF4E1238)
+  val Wine = Color(0xFF7A1E52)
+  val Magenta = Color(0xFFC2185B)
+  val MagentaBright = Color(0xFFE91E63)
+  val MagentaHover = Color(0xFFAD1457)
+  val Pink = Color(0xFFF06292)
+  val PinkSoft = Color(0xFFFFD6E5)
+  val Blush = Color(0xFFFFF0F5)
+  val BlushDeep = Color(0xFFF8D5E3)
+  val Teal = Color(0xFF2EC4B6)
+  val TealDeep = Color(0xFF1AA89C)
+  val TealSoft = Color(0xFFD4F6F2)
+  val Card = Color(0xFFFFFFFF)
 
-  val BorderSubtle = Color(0xA6D8C9F3)
-  val BorderStrong = Color(0xFFD8C9F3)
-  val BorderFocus = Color(0xFF7C3AED)
+  val BgRootStart = Wine
+  val BgRootEnd = Blush
+  val BgHeroStart = WineDeep
+  val BgHeroEnd = Magenta
+  val BgSurfaceLow = Color(0xF2FFFFFF)
+  val BgSurfaceMid = Card
+  val BgSurfaceHigh = Color(0xFFFFF7FA)
+  val BgSurfaceHover = PinkSoft
 
-  val AccentPrimary = Color(0xFF7C3AED)
-  val AccentPrimaryHover = Color(0xFF6D28D9)
-  val AccentSecondary = Color(0xFFA78BFA)
-  val AccentSubtle = Color(0x1F7C3AED)
+  val BorderSubtle = Color(0x40C2185B)
+  val BorderStrong = Color(0xFFEEB8CC)
+  val BorderFocus = MagentaBright
 
-  val Danger = Color(0xFFEF4444)
-  val DangerHover = Color(0xFFDC2626)
-  val Success = Color(0xFF16A34A)
+  val AccentPrimary = Magenta
+  val AccentPrimaryHover = MagentaHover
+  val AccentSecondary = Teal
+  val AccentTertiary = Pink
+  val AccentSubtle = Color(0x26C2185B)
 
-  val TextPrimary = Color(0xFF221C35)
-  val TextSecondary = Color(0xFF6C6382)
-  val TextMuted = Color(0xFF9A92AC)
+  val Danger = Color(0xFFE11D48)
+  val DangerHover = Color(0xFFBE123C)
+  val Success = TealDeep
+
+  val TextPrimary = Color(0xFF3A1530)
+  val TextSecondary = Color(0xFF8D5A74)
+  val TextMuted = Color(0xFFB08A9C)
   val TextOnAccent = Color(0xFFFFFFFF)
+  val TextOnHero = Color(0xFFFFFFFF)
 
-  val SuccessSurface = Color(0x1F16A34A)
-  val MutedSurface = Color(0x269A92AC)
+  val SuccessSurface = Color(0x332EC4B6)
+  val MutedSurface = Color(0x26B08A9C)
+  val MagentaSurface = Color(0x33C2185B)
+
+  val CaptionBar = Color(0xFFF8E3EB)
+  val AvatarTile = Color(0x1FC2185B)
+  val AvatarTileMuted = Color(0x2EB08A9C)
+  val DangerSurface = Color(0x14E11D48)
+  val DangerBorder = Color(0x40E11D48)
+  val DangerConfirmSurface = Color(0x0FE11D48)
+  val DangerConfirmBorder = Color(0x73E11D48)
+}
+
+object VertexBrushes {
+  val Hero = Brush.verticalGradient(
+    colors = listOf(VertexColors.WineDeep, VertexColors.Wine, VertexColors.Magenta)
+  )
+  val Screen = Brush.verticalGradient(
+    colors = listOf(VertexColors.Wine, VertexColors.Magenta, VertexColors.Blush)
+  )
+  val Control = Brush.linearGradient(
+    colors = listOf(
+      VertexColors.BlushDeep,
+      VertexColors.Blush,
+      VertexColors.TealSoft.copy(alpha = 0.55f)
+    )
+  )
+  val MagentaTeal = Brush.horizontalGradient(
+    colors = listOf(VertexColors.Magenta, VertexColors.Pink, VertexColors.Teal)
+  )
+  val Avatar = Brush.linearGradient(
+    colors = listOf(VertexColors.Magenta, VertexColors.Pink)
+  )
 }

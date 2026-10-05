@@ -1,5 +1,6 @@
 package vertexlink.ui.components.device
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,8 +17,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import com.vertexlink.ui.theme.VertexColors
 import vertexlink.device.DiscoveredDevice
 import vertexlink.ui.components.common.StatusPill
+import vertexlink.ui.components.common.StatusTone
+import vertexlink.ui.components.common.dashedBorder
 
 @Composable
 fun DeviceRow(
@@ -25,31 +29,68 @@ fun DeviceRow(
   onClick: () -> Unit,
   modifier: Modifier = Modifier
 ) {
-  Row(
-    verticalAlignment = Alignment.CenterVertically,
+  val shape = RoundedCornerShape(16.dp)
+  val isUnpaired = !device.isPaired
+
+  Column(
     modifier = modifier
       .fillMaxWidth()
-      .clip(RoundedCornerShape(10.dp))
-      .clickable(onClick = onClick)
-      .padding(10.dp)
-  ) {
-    DeviceAvatar(
-      kind = device.kind,
-      showStatusDot = false,
-      isOnline = device.isOnline,
-      size = 36.dp
-    )
-
-    Spacer(modifier = Modifier.width(12.dp))
-
-    Column(modifier = Modifier.weight(1f)) {
-      Text(text = device.name, style = MaterialTheme.typography.bodyMedium)
-
-      Spacer(modifier = Modifier.height(4.dp))
-      StatusPill(
-        text = if (device.isOnline) "Online" else "Offline",
-        isPositive = device.isOnline
+      .padding(vertical = 4.dp)
+      .clip(shape)
+      .background(if (isUnpaired) VertexColors.Card.copy(alpha = 0.6f) else VertexColors.Card)
+      .then(
+        if (isUnpaired) {
+          Modifier.dashedBorder(color = VertexColors.BorderStrong, cornerRadius = 16.dp)
+        } else {
+          Modifier
+        }
       )
+      .clickable(onClick = onClick)
+      .padding(12.dp)
+  ) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+      DeviceAvatar(
+        kind = device.kind,
+        showStatusDot = false,
+        isOnline = device.isOnline,
+        size = 40.dp,
+        muted = isUnpaired
+      )
+
+      Spacer(modifier = Modifier.width(12.dp))
+
+      Column(modifier = Modifier.weight(1f)) {
+        Text(
+          text = device.name,
+          style = MaterialTheme.typography.bodyMedium,
+          color = VertexColors.TextPrimary
+        )
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        Row {
+          StatusPill(
+            text = if (device.isOnline) {
+              "Online"
+            } else {
+              "Offline"
+            },
+            tone = if (device.isOnline) {
+              StatusTone.Positive
+            } else {
+              StatusTone.Muted
+            }
+          )
+
+          Spacer(modifier = Modifier.width(6.dp))
+
+          if (device.isPaired) {
+            StatusPill(text = "Paired", tone = StatusTone.Neutral)
+          } else {
+            StatusPill(text = "Not paired", tone = StatusTone.Muted)
+          }
+        }
+      }
     }
   }
 }

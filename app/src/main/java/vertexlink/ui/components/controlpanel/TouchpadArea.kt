@@ -21,16 +21,14 @@ fun TouchpadArea(
   mouseController: MouseController,
   modifier: Modifier = Modifier
 ) {
+  val shape = RoundedCornerShape(20.dp)
+
   Box(
     modifier = modifier
       .fillMaxSize()
-      .border(
-        width = 1.dp,
-        color = VertexColors.BorderSubtle,
-        shape = RoundedCornerShape(16.dp)
-      )
-      .clip(RoundedCornerShape(16.dp))
-      .background(VertexColors.BgSurfaceLow)
+      .border(1.5.dp, VertexColors.BorderStrong, shape)
+      .clip(shape)
+      .background(VertexColors.Card.copy(alpha = 0.72f))
       .touchpadInput(
         onMouseMove = mouseController::sendMouseMove,
         onLeftClick = mouseController::sendLeftClick,
@@ -42,7 +40,7 @@ fun TouchpadArea(
     Text(
       text = "Touchpad",
       style = MaterialTheme.typography.labelSmall,
-      color = VertexColors.TextSecondary,
+      color = VertexColors.Magenta,
       modifier = Modifier.padding(16.dp)
     )
   }

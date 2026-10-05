@@ -18,6 +18,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LeadingIconTab
 import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -47,13 +49,13 @@ fun KeyboardPanel(
   onClose: () -> Unit,
   modifier: Modifier = Modifier
 ) {
-  var tab by remember { mutableStateOf(KeyboardTab.MACROS) }
+  var tab by remember { mutableStateOf(KeyboardTab.TYPE) }
   var showAddMacroDialog by remember { mutableStateOf(false) }
 
   Column(
     modifier = modifier
       .clip(RoundedCornerShape(16.dp))
-      .background(VertexColors.BgSurfaceHigh.copy(alpha = 0.97f))
+      .background(VertexColors.Card.copy(alpha = 0.97f))
       .border(1.dp, VertexColors.BorderSubtle, RoundedCornerShape(16.dp))
       .padding(12.dp)
   ) {
@@ -102,7 +104,14 @@ private fun KeyboardPanelHeader(
     TabRow(
       selectedTabIndex = selectedTab.ordinal,
       modifier = Modifier.weight(1f),
-      containerColor = Color.Transparent
+      containerColor = Color.Transparent,
+      contentColor = VertexColors.Magenta,
+      indicator = { tabPositions ->
+        TabRowDefaults.SecondaryIndicator(
+          modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab.ordinal]),
+          color = VertexColors.AccentSecondary
+        )
+      }
     ) {
       LeadingIconTab(
         selected = selectedTab == KeyboardTab.MACROS,

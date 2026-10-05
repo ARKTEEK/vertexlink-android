@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.vertexlink.ui.theme.VertexColors
+import vertexlink.ui.components.common.IconButtonTone
 import vertexlink.ui.components.common.IconRoundButton
 
 enum class ControlSection {
@@ -41,61 +42,68 @@ fun ControlRail(
   onDisconnect: () -> Unit,
   modifier: Modifier = Modifier
 ) {
-  val shape = RoundedCornerShape(8.dp)
+  val shape = RoundedCornerShape(16.dp)
 
   Column(
-    verticalArrangement = Arrangement.spacedBy(6.dp),
     horizontalAlignment = Alignment.CenterHorizontally,
     modifier = modifier
       .clip(shape)
-      .background(VertexColors.BgSurfaceHigh.copy(alpha = 0.9f))
+      .background(VertexColors.Card)
       .border(1.dp, VertexColors.BorderSubtle, shape)
-      .verticalScroll(rememberScrollState())
-      .padding(4.dp)
+      .padding(6.dp)
   ) {
-    IconRoundButton(
-      icon = Icons.Outlined.Keyboard,
-      contentDescription = "Keyboard",
-      onClick = { onToggleSection(ControlSection.Keyboard) },
-      active = activeSection == ControlSection.Keyboard
-    )
+    Column(
+      verticalArrangement = Arrangement.spacedBy(6.dp),
+      horizontalAlignment = Alignment.CenterHorizontally,
+      modifier = Modifier.verticalScroll(rememberScrollState())
+    ) {
+      IconRoundButton(
+        icon = Icons.Outlined.Keyboard,
+        contentDescription = "Keyboard",
+        onClick = { onToggleSection(ControlSection.Keyboard) },
+        active = activeSection == ControlSection.Keyboard
+      )
 
-    IconRoundButton(
-      icon = Icons.Outlined.ContentPaste,
-      contentDescription = "Clipboard",
-      onClick = { onToggleSection(ControlSection.Clipboard) },
-      active = activeSection == ControlSection.Clipboard
-    )
+      IconRoundButton(
+        icon = Icons.Outlined.ContentPaste,
+        contentDescription = "Clipboard",
+        onClick = { onToggleSection(ControlSection.Clipboard) },
+        active = activeSection == ControlSection.Clipboard,
+        tone = IconButtonTone.Secondary
+      )
 
-    IconRoundButton(
-      icon = if (isMuted) {
-        Icons.AutoMirrored.Outlined.VolumeOff
-      } else {
-        Icons.AutoMirrored.Outlined.VolumeUp
-      },
-      contentDescription = "Volume",
-      onClick = { onToggleSection(ControlSection.Volume) },
-      active = activeSection == ControlSection.Volume
-    )
+      IconRoundButton(
+        icon = if (isMuted) {
+          Icons.AutoMirrored.Outlined.VolumeOff
+        } else {
+          Icons.AutoMirrored.Outlined.VolumeUp
+        },
+        contentDescription = "Volume",
+        onClick = { onToggleSection(ControlSection.Volume) },
+        active = activeSection == ControlSection.Volume
+      )
 
-    IconRoundButton(
-      icon = Icons.Outlined.TouchApp,
-      contentDescription = "Gestures",
-      onClick = { onToggleSection(ControlSection.Info) },
-      active = activeSection == ControlSection.Info
-    )
+      IconRoundButton(
+        icon = Icons.Outlined.TouchApp,
+        contentDescription = "Gestures",
+        onClick = { onToggleSection(ControlSection.Info) },
+        active = activeSection == ControlSection.Info,
+        tone = IconButtonTone.Secondary
+      )
 
-    Box(
-      modifier = Modifier
-        .width(20.dp)
-        .height(1.dp)
-        .background(VertexColors.BorderSubtle)
-    )
+      Box(
+        modifier = Modifier
+          .width(20.dp)
+          .height(1.dp)
+          .background(VertexColors.BorderStrong)
+      )
 
-    IconRoundButton(
-      icon = Icons.AutoMirrored.Outlined.Logout,
-      contentDescription = "Disconnect",
-      onClick = onDisconnect
-    )
+      IconRoundButton(
+        icon = Icons.AutoMirrored.Outlined.Logout,
+        contentDescription = "Disconnect",
+        onClick = onDisconnect,
+        tone = IconButtonTone.Danger
+      )
+    }
   }
 }
