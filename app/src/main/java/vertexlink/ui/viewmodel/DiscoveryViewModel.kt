@@ -18,7 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DiscoveryViewModel @Inject constructor(
   private val pairedDesktopStore: PairedDesktopStore,
-  settingsStore: SettingsStore,
+  private val settingsStore: SettingsStore,
   private val deviceInfo: DeviceInfo,
   private val networkConfig: NetworkConfig,
   private val scanner: DeviceScanner,
@@ -35,6 +35,8 @@ class DiscoveryViewModel @Inject constructor(
   init {
     loadPairedDevices()
   }
+
+  fun shouldConfirmUnpair(): Boolean = settingsStore.confirmUnpair
 
   fun toggleScanning() {
     isScanning = !isScanning

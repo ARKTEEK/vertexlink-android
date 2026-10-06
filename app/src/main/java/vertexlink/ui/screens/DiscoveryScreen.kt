@@ -165,7 +165,8 @@ fun DiscoveryScreen(
           onUnpair = {
             viewModel.unpair(device.id)
             selectedDevice = null
-          }
+          },
+          shouldConfirmUnpair = viewModel::shouldConfirmUnpair
         )
       }
     }

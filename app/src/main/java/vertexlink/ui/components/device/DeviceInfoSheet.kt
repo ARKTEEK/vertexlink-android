@@ -44,6 +44,7 @@ fun DeviceInfoSheet(
   device: DiscoveredDevice,
   onConnect: () -> Unit,
   onUnpair: () -> Unit,
+  shouldConfirmUnpair: () -> Boolean,
   modifier: Modifier = Modifier
 ) {
   var confirmingUnpair by remember(device.id) { mutableStateOf(false) }
@@ -163,7 +164,13 @@ fun DeviceInfoSheet(
         )
       } else {
         OutlinedButton(
-          onClick = { confirmingUnpair = true },
+          onClick = {
+            if (shouldConfirmUnpair()) {
+              confirmingUnpair = true
+            } else {
+              onUnpair()
+            }
+          },
           modifier = Modifier.fillMaxWidth(),
           colors = ButtonDefaults.outlinedButtonColors(contentColor = VertexColors.Danger)
         ) {
