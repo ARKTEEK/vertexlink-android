@@ -25,6 +25,7 @@ import androidx.core.graphics.toColorInt
 import com.vertexlink.ui.theme.VertexColors
 import com.vertexlink.ui.theme.VertexLinkTheme
 import dagger.hilt.android.AndroidEntryPoint
+import vertexlink.ui.components.common.KeepScreenOnEffect
 import vertexlink.ui.screens.ControlPanel
 import vertexlink.ui.screens.DiscoveryScreen
 import vertexlink.ui.screens.PairingProgress
@@ -72,17 +73,22 @@ class MainActivity : ComponentActivity() {
           containerColor = VertexColors.Wine
         ) { innerPadding ->
           when {
-            targetAddress != null -> ControlPanel(
-              onDisconnect = mainViewModel::disconnect,
-              mouseController = mainViewModel.mouseController,
-              keyboardController = mainViewModel.keyboardController,
-              audioController = mainViewModel.audioController,
-              clipboardController = mainViewModel.clipboardController,
-              macros = macroViewModel.macros.value,
-              onAddMacro = macroViewModel::addMacro,
-              onDeleteMacro = macroViewModel::deleteMacro,
-              modifier = Modifier
-            )
+            targetAddress != null -> {
+              val isKeepScreenOnEnabled = settingsViewModel.keepScreenOn
+
+              ControlPanel(
+                keepScreenOn = isKeepScreenOnEnabled,
+                onDisconnect = mainViewModel::disconnect,
+                mouseController = mainViewModel.mouseController,
+                keyboardController = mainViewModel.keyboardController,
+                audioController = mainViewModel.audioController,
+                clipboardController = mainViewModel.clipboardController,
+                macros = macroViewModel.macros.value,
+                onAddMacro = macroViewModel::addMacro,
+                onDeleteMacro = macroViewModel::deleteMacro,
+                modifier = Modifier
+              )
+            }
 
             pairingState is PairingUiState.Connecting -> PairingProgress(
               modifier = Modifier,

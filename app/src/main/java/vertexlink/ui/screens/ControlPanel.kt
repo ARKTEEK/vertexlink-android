@@ -35,6 +35,7 @@ import vertexlink.controller.MouseController
 import vertexlink.model.ClipboardEntry
 import vertexlink.model.Macro
 import vertexlink.ui.components.common.ImmersiveLandscapeEffect
+import vertexlink.ui.components.common.KeepScreenOnEffect
 import vertexlink.ui.components.controlpanel.ControlRail
 import vertexlink.ui.components.controlpanel.ControlSection
 import vertexlink.ui.components.controlpanel.TouchpadArea
@@ -48,6 +49,7 @@ private const val CLIPBOARD_POLL_MS = 2_000L
 
 @Composable
 fun ControlPanel(
+  keepScreenOn: Boolean,
   onDisconnect: () -> Unit,
   mouseController: MouseController,
   keyboardController: KeyboardController,
@@ -58,6 +60,8 @@ fun ControlPanel(
   onDeleteMacro: (String) -> Unit,
   modifier: Modifier = Modifier
 ) {
+  KeepScreenOnEffect(enabled = keepScreenOn)
+
   var activeSection by remember { mutableStateOf<ControlSection?>(null) }
   var volume by remember { mutableIntStateOf(50) }
   var isMuted by remember { mutableStateOf(false) }
