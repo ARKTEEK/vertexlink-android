@@ -12,11 +12,13 @@ import vertexlink.network.NetworkConfig
 import vertexlink.network.mdns.DeviceBroadcaster
 import vertexlink.network.mdns.DeviceScanner
 import vertexlink.store.PairedDesktopStore
+import vertexlink.store.SettingsStore
 import javax.inject.Inject
 
 @HiltViewModel
 class DiscoveryViewModel @Inject constructor(
   private val pairedDesktopStore: PairedDesktopStore,
+  settingsStore: SettingsStore,
   private val deviceInfo: DeviceInfo,
   private val networkConfig: NetworkConfig,
   private val scanner: DeviceScanner,
@@ -24,7 +26,7 @@ class DiscoveryViewModel @Inject constructor(
 ) : ViewModel() {
   val thisDeviceName: String = deviceInfo.getDeviceName()
 
-  var isScanning by mutableStateOf(false)
+  var isScanning by mutableStateOf(settingsStore.autoStartDiscoverability)
     private set
 
   val pairedDevices = mutableStateListOf<DiscoveredDevice>()
@@ -68,7 +70,7 @@ class DiscoveryViewModel @Inject constructor(
     }
 
     val device = pairedDevices.removeAt(pairedIndex)
-    
+
     if (device.isOnline) {
       upsertUnpaired(device.copy(isPaired = false))
     }
