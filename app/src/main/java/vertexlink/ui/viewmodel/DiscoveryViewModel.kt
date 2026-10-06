@@ -1,6 +1,9 @@
 package vertexlink.ui.viewmodel
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import vertexlink.device.DeviceInfo
@@ -21,8 +24,19 @@ class DiscoveryViewModel @Inject constructor(
 ) : ViewModel() {
   val thisDeviceName: String = deviceInfo.getDeviceName()
 
+  var isScanning by mutableStateOf(false)
+    private set
+
   val pairedDevices = mutableStateListOf<DiscoveredDevice>()
   val unpairedDevices = mutableStateListOf<DiscoveredDevice>()
+
+  init {
+    loadPairedDevices()
+  }
+
+  fun toggleScanning() {
+    isScanning = !isScanning
+  }
 
   fun startScanning() {
     loadPairedDevices()

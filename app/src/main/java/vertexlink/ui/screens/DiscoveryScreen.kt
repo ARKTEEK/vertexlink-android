@@ -45,7 +45,7 @@ fun DiscoveryScreen(
   onConnect: (String, String, String) -> Unit,
   modifier: Modifier = Modifier
 ) {
-  var isScanning by remember { mutableStateOf(true) }
+  val isScanning = viewModel.isScanning
   var query by remember { mutableStateOf("") }
   var selectedDevice by remember { mutableStateOf<DiscoveredDevice?>(null) }
 
@@ -76,7 +76,7 @@ fun DiscoveryScreen(
           deviceName = viewModel.thisDeviceName,
           isScanning = isScanning,
           onRefresh = { viewModel.startScanning() },
-          onToggleScanning = { isScanning = !isScanning }
+          onToggleScanning = viewModel::toggleScanning,
         )
 
         Spacer(modifier = Modifier.height(12.dp))
