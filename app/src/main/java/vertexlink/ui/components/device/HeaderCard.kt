@@ -12,12 +12,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.PowerSettingsNew
 import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.vertexlink.ui.theme.VertexColors
 import vertexlink.ui.components.common.CaptionStrip
@@ -32,6 +34,7 @@ fun HeaderCard(
   isScanning: Boolean,
   onRefresh: () -> Unit,
   onToggleScanning: () -> Unit,
+  onOpenSettings: () -> Unit,
   modifier: Modifier = Modifier
 ) {
   val shape = RoundedCornerShape(18.dp)
@@ -56,7 +59,9 @@ fun HeaderCard(
         Text(
           text = deviceName,
           style = MaterialTheme.typography.titleMedium,
-          color = VertexColors.TextPrimary
+          color = VertexColors.TextPrimary,
+          maxLines = 1,
+          overflow = TextOverflow.Ellipsis
         )
 
         Spacer(modifier = Modifier.height(6.dp))
@@ -74,6 +79,14 @@ fun HeaderCard(
           }
         )
       }
+
+      IconRoundButton(
+        icon = Icons.Outlined.Settings,
+        contentDescription = "Settings",
+        onClick = onOpenSettings
+      )
+
+      Spacer(modifier = Modifier.width(8.dp))
 
       IconRoundButton(
         icon = Icons.Outlined.Refresh,

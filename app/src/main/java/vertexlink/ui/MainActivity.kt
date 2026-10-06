@@ -11,10 +11,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.toColorInt
@@ -24,16 +28,19 @@ import dagger.hilt.android.AndroidEntryPoint
 import vertexlink.ui.screens.ControlPanel
 import vertexlink.ui.screens.DiscoveryScreen
 import vertexlink.ui.screens.PairingProgress
+import vertexlink.ui.screens.SettingsScreen
 import vertexlink.ui.state.PairingUiState
 import vertexlink.ui.viewmodel.DiscoveryViewModel
 import vertexlink.ui.viewmodel.MacroViewModel
 import vertexlink.ui.viewmodel.MainViewModel
+import vertexlink.ui.viewmodel.SettingsViewModel
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
   private val discoveryViewModel by viewModels<DiscoveryViewModel>()
   private val mainViewModel by viewModels<MainViewModel>()
   private val macroViewModel by viewModels<MacroViewModel>()
+  private val settingsViewModel by viewModels<SettingsViewModel>()
 
   private val notificationPermissionLauncher =
     registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -58,6 +65,7 @@ class MainActivity : ComponentActivity() {
       VertexLinkTheme {
         val targetAddress by mainViewModel.targetAddress
         val pairingState by mainViewModel.pairingState
+        var showSettings by rememberSaveable { mutableStateOf(false) }
 
         Scaffold(
           modifier = Modifier.fillMaxSize(),
@@ -86,13 +94,24 @@ class MainActivity : ComponentActivity() {
               pin = (pairingState as PairingUiState.AwaitingConfirmation).pin
             )
 
-            else -> DiscoveryScreen(
-              viewModel = discoveryViewModel,
-              onConnect = { desktopId, address, name ->
-                mainViewModel.connectToDevice(desktopId, address, name)
-              },
-              modifier = Modifier.padding(innerPadding)
-            )
+            else -> Box(modifier = Modifier.fillMaxSize()) {
+              DiscoveryScreen(
+                viewModel = discoveryViewModel,
+                onConnect = { desktopId, address, name ->
+                  mainViewModel.connectToDevice(desktopId, address, name)
+                },
+                onOpenSettings = { showSettings = true },
+                modifier = Modifier.padding(innerPadding)
+              )
+
+              if (showSettings) {
+                SettingsScreen(
+                  viewModel = settingsViewModel,
+                  onBack = { showSettings = false },
+                  modifier = Modifier.padding(innerPadding)
+                )
+              }
+            }
           }
         }
       }

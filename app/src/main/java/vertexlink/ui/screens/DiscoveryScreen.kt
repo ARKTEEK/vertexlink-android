@@ -43,6 +43,7 @@ import vertexlink.ui.viewmodel.DiscoveryViewModel
 fun DiscoveryScreen(
   viewModel: DiscoveryViewModel,
   onConnect: (String, String, String) -> Unit,
+  onOpenSettings: () -> Unit,
   modifier: Modifier = Modifier
 ) {
   val isScanning = viewModel.isScanning
@@ -77,6 +78,7 @@ fun DiscoveryScreen(
           isScanning = isScanning,
           onRefresh = { viewModel.startScanning() },
           onToggleScanning = viewModel::toggleScanning,
+          onOpenSettings = onOpenSettings
         )
 
         Spacer(modifier = Modifier.height(12.dp))
