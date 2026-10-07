@@ -5,7 +5,11 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.launch
 import vertexlink.device.DeviceInfo
 import vertexlink.device.DiscoveredDevice
 import vertexlink.network.NetworkConfig
@@ -24,7 +28,9 @@ class DiscoveryViewModel @Inject constructor(
   private val scanner: DeviceScanner,
   private val broadcaster: DeviceBroadcaster
 ) : ViewModel() {
-  val thisDeviceName: String = deviceInfo.getDeviceName()
+  val thisDeviceName: StateFlow<String> = deviceInfo.deviceName
+
+  private var isBroadcasting = false
 
   var isScanning by mutableStateOf(settingsStore.autoStartDiscoverability)
     private set
@@ -34,6 +40,15 @@ class DiscoveryViewModel @Inject constructor(
 
   init {
     loadPairedDevices()
+
+    viewModelScope.launch {
+      deviceInfo.deviceName.drop(1).collect { newName ->
+        if (isBroadcasting) {
+          broadcaster.stop()
+          broadcaster.start(newName, networkConfig.tcpPort)
+        }
+      }
+    }
   }
 
   fun shouldConfirmUnpair(): Boolean = settingsStore.confirmUnpair
@@ -46,12 +61,14 @@ class DiscoveryViewModel @Inject constructor(
     loadPairedDevices()
     unpairedDevices.clear()
     broadcaster.start(deviceInfo.getDeviceName(), networkConfig.tcpPort)
+    isBroadcasting = true
     scanner.start { id, name, address -> onDeviceFound(id, name, address) }
   }
 
   fun stopScanning() {
     scanner.stop()
     broadcaster.stop()
+    isBroadcasting = false
   }
 
   private fun loadPairedDevices() {

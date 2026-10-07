@@ -21,6 +21,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,6 +48,7 @@ fun DiscoveryScreen(
   modifier: Modifier = Modifier
 ) {
   val isScanning = viewModel.isScanning
+  val thisDeviceName by viewModel.thisDeviceName.collectAsState()
   var query by remember { mutableStateOf("") }
   var selectedDevice by remember { mutableStateOf<DiscoveredDevice?>(null) }
 
@@ -74,7 +76,7 @@ fun DiscoveryScreen(
     ) {
       Column(modifier = Modifier.padding(start = 20.dp, top = 24.dp, end = 20.dp, bottom = 24.dp)) {
         HeaderCard(
-          deviceName = viewModel.thisDeviceName,
+          deviceName = thisDeviceName,
           isScanning = isScanning,
           onRefresh = { viewModel.startScanning() },
           onToggleScanning = viewModel::toggleScanning,

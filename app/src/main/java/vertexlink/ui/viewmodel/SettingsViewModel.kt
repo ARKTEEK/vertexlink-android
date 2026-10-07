@@ -12,9 +12,9 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
   private val settingsStore: SettingsStore,
-  deviceInfo: DeviceInfo
+  private val deviceInfo: DeviceInfo
 ) : ViewModel() {
-  val systemDeviceName: String = deviceInfo.getDeviceName()
+  val systemDeviceName: String = deviceInfo.getSystemDeviceName()
 
   var autoStartDiscoverability by mutableStateOf(settingsStore.autoStartDiscoverability)
     private set
@@ -43,7 +43,7 @@ class SettingsViewModel @Inject constructor(
     val trimmed = value.trim()
 
     deviceName = trimmed
-    settingsStore.deviceName = trimmed
+    deviceInfo.setCustomDeviceName(trimmed)
   }
 
   fun updateTouchpadSensitivity(value: Float) {
