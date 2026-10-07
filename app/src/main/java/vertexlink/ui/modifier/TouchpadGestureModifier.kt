@@ -9,14 +9,16 @@ import androidx.compose.ui.input.pointer.positionChange
 import kotlin.math.roundToInt
 
 fun Modifier.touchpadInput(
+  sensitivity: Float = 1f,
   onMouseMove: (Int, Int) -> Unit,
   onLeftClick: () -> Unit,
   onRightClick: () -> Unit,
   onMouseLeftDown: () -> Unit,
   onMouseLeftUp: () -> Unit
 ): Modifier {
-  return this.pointerInput(Unit) {
+  return this.pointerInput(sensitivity) {
     detectTouchpadGestures(
+      sensitivity = sensitivity,
       onMouseMove = onMouseMove,
       onLeftClick = onLeftClick,
       onRightClick = onRightClick,
@@ -27,6 +29,7 @@ fun Modifier.touchpadInput(
 }
 
 private suspend fun PointerInputScope.detectTouchpadGestures(
+  sensitivity: Float,
   onMouseMove: (Int, Int) -> Unit,
   onLeftClick: () -> Unit,
   onRightClick: () -> Unit,
@@ -45,6 +48,9 @@ private suspend fun PointerInputScope.detectTouchpadGestures(
     var isPlainMove = false
     var isClickDrag = false
     var secondPointerSeen = false
+
+    var remainderX = 0f
+    var remainderY = 0f
 
     while (true) {
       val event = awaitPointerEvent()
@@ -83,7 +89,17 @@ private suspend fun PointerInputScope.detectTouchpadGestures(
       }
 
       if (isPlainMove || isClickDrag) {
-        onMouseMove(delta.x.roundToInt(), delta.y.roundToInt())
+        val scaledX = delta.x * sensitivity + remainderX
+        val scaledY = delta.y * sensitivity + remainderY
+        val moveX = scaledX.roundToInt()
+        val moveY = scaledY.roundToInt()
+
+        remainderX = scaledX - moveX
+        remainderY = scaledY - moveY
+
+        if (moveX != 0 || moveY != 0) {
+          onMouseMove(moveX, moveY)
+        }
       }
     }
   }

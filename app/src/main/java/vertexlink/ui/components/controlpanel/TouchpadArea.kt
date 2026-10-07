@@ -19,6 +19,7 @@ import vertexlink.ui.modifier.touchpadInput
 @Composable
 fun TouchpadArea(
   mouseController: MouseController,
+  sensitivity: Float = 1f,
   modifier: Modifier = Modifier
 ) {
   val shape = RoundedCornerShape(20.dp)
@@ -30,6 +31,7 @@ fun TouchpadArea(
       .clip(shape)
       .background(VertexColors.Card.copy(alpha = 0.72f))
       .touchpadInput(
+        sensitivity = sensitivity,
         onMouseMove = mouseController::sendMouseMove,
         onLeftClick = mouseController::sendLeftClick,
         onRightClick = mouseController::sendRightClick,

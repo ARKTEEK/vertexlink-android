@@ -58,6 +58,7 @@ fun ControlPanel(
   macros: List<Macro>,
   onAddMacro: (Macro) -> Unit,
   onDeleteMacro: (String) -> Unit,
+  touchpadSensitivity: Float = 1f,
   modifier: Modifier = Modifier
 ) {
   KeepScreenOnEffect(enabled = keepScreenOn)
@@ -131,7 +132,8 @@ fun ControlPanel(
       .padding(16.dp)
   ) {
     TouchpadArea(
-      mouseController = mouseController
+      mouseController = mouseController,
+      sensitivity = touchpadSensitivity
     )
 
     Row(

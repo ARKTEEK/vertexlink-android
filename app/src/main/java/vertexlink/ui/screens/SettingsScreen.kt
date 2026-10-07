@@ -140,8 +140,8 @@ fun SettingsScreen(
           subtitle = "How far the cursor moves per swipe",
           value = viewModel.touchpadSensitivity,
           valueLabel = "%.1f\u00D7".format(viewModel.touchpadSensitivity),
-          valueRange = 0.5f..2f,
-          steps = 14,
+          valueRange = 0.1f..5.0f,
+          steps = 48,
           onValueChange = { viewModel.updateTouchpadSensitivity((it * 10).roundToInt() / 10f) }
         )
 

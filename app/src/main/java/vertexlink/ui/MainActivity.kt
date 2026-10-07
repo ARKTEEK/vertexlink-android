@@ -25,7 +25,6 @@ import androidx.core.graphics.toColorInt
 import com.vertexlink.ui.theme.VertexColors
 import com.vertexlink.ui.theme.VertexLinkTheme
 import dagger.hilt.android.AndroidEntryPoint
-import vertexlink.ui.components.common.KeepScreenOnEffect
 import vertexlink.ui.screens.ControlPanel
 import vertexlink.ui.screens.DiscoveryScreen
 import vertexlink.ui.screens.PairingProgress
@@ -86,6 +85,7 @@ class MainActivity : ComponentActivity() {
                 macros = macroViewModel.macros.value,
                 onAddMacro = macroViewModel::addMacro,
                 onDeleteMacro = macroViewModel::deleteMacro,
+                touchpadSensitivity = settingsViewModel.touchpadSensitivity,
                 modifier = Modifier
               )
             }
